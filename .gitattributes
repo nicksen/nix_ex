@@ -1,0 +1,22 @@
+# Set default behavior to automatically normalize line endings.
+* text=auto eol=lf
+
+# * The item with `binary` is treated as binary file.
+# * The item with `eol=lf` is converted to LF on checkin, back to LF on checkout.
+# * The item with `eol=crlf` is converted to LF on checkin, back to CRLF on checkout.
+
+# Npm "bin" scripts MUST have LF, or else the executable fails to run on Mac. This fnmatch
+# expression only matches files in a "bin" folder and without a period in the filename.
+/*/*/bin/+([!.]) -text
+
+# Don't allow people to merge changes to these generated files, because the result may be invalid.
+package-lock.yaml merge=binary
+pnpm-lock.yaml merge=binary
+shrinkwrap.yaml merge=binary
+npm-shrinkwrap.json merge=binary
+*.lock merge=binary
+
+# This rule prevents pedantic syntax highlighters such as GitHub's from highlighting comments in
+# json files as errors. Your text editor may also require a special configuration to allow comments
+# in json.
+*.json linguist-language=JSON-with-Comments
