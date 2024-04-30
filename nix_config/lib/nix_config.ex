@@ -37,7 +37,7 @@ defmodule Nix.Config do
     end
   end
 
-  @spec os_env(name :: String.t(), default :: String.t() | nil) :: String.t()
+  @spec os_env(name :: String.t(), default :: String.t() | nil) :: String.t() | nil
   def os_env(name, default \\ nil) do
     case System.fetch_env(name) do
       {:ok, value} -> value
