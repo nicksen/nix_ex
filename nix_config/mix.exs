@@ -45,8 +45,8 @@ defmodule Nix.Config.MixProject do
   # see the documentation for `mix` for more info on aliases
   defp aliases do
     [
-      lint: [
-        "compile --force --all-warnings --warnings-as-errors",
+      "lint.check": [
+        "compile --all-warnings --warnings-as-errors",
         "deps.unlock --check-unused",
         "cmd mix hex.audit",
         "deps.audit",
@@ -55,6 +55,11 @@ defmodule Nix.Config.MixProject do
         "cmd mix recode",
         "credo suggest",
         "dialyzer"
+      ],
+      "lint.fmt": [
+        "do deps.unlock --unused + deps.clean --unused",
+        "format",
+        "cmd mix recode --autocorrect"
       ]
     ]
   end
