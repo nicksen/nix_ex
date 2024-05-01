@@ -57,9 +57,15 @@ defmodule Nix.Config.MixProject do
         "dialyzer"
       ],
       "lint.fmt": [
+        "compile --all-warnings --warnings-as-errors",
         "do deps.unlock --unused + deps.clean --unused",
+        "cmd mix hex.audit",
+        "deps.audit",
+        "xref graph --label compile-connected --fail-above 0",
         "format",
-        "cmd mix recode --autocorrect"
+        "cmd mix recode --autocorrect",
+        "credo suggest",
+        "dialyzer"
       ]
     ]
   end

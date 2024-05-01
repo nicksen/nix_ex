@@ -1,0 +1,24 @@
+---
+# Refer for explanation to following link:
+# https://github.com/evilmartians/lefthook/blob/master/docs/configuration.md
+
+pre-commit:
+  parallel: true
+  commands:
+    nix_config_mix_lint:
+      root: "nix_config/"
+      glob: "*.{ex,exs,heex,md}"
+      run: mix lint.fmt
+      stage_fixed: true
+
+    nix_csp_mix_lint:
+      root: "nix_csp/"
+      glob: "*.{ex,exs,heex,md}"
+      run: mix lint.fmt
+      stage_fixed: true
+
+    nix_std_mix_lint:
+      root: "nix_std/"
+      glob: "*.{ex,exs,heex,md}"
+      run: mix lint.fmt
+      stage_fixed: true
