@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "nix_ex",
+  "version": "1.0.0",
+  "type": "module",
+  "devDependencies": {
+    "prettier-package-json": "^2.8.0"
+  }
+}
