@@ -22,3 +22,9 @@ pre-commit:
       glob: "*.{ex,exs,heex,md}"
       run: mix lint.fmt
       stage_fixed: true
+
+    ticker_mix_lint:
+      root: "ticker/"
+      glob: "*.{ex,exs,heex,md}"
+      run: mix lint.fmt
+      stage_fixed: true
