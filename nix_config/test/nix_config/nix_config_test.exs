@@ -57,7 +57,7 @@ defmodule Nix.ConfigTest do
       assert merge(l1, l2) == [a: [aa: "x"], b: [ba: 1, bb: :v], c: :v]
     end
 
-    test "merge repeated flags" do
+    test "repeated keys" do
       l1 = [a: 1, a: 2]
       l2 = [a: 3]
 

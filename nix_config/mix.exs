@@ -36,6 +36,8 @@ defmodule Nix.Config.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      poncho_dep(:nix_std),
+
       ## dev
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:credo_contrib, "~> 0.2", only: [:dev, :test], runtime: false},
@@ -47,6 +49,14 @@ defmodule Nix.Config.MixProject do
       {:recode, "~> 0.7", only: [:dev, :test], runtime: false},
       {:styler, "~> 0.11", only: [:dev, :test], runtime: false}
     ]
+  end
+
+  defp poncho_dep(app) do
+    if Mix.env() == :prod do
+      {app, github: "nicksen/nix_ex", sparse: Atom.to_string(app)}
+    else
+      {app, path: "../#{app}"}
+    end
   end
 
   # aliases are shortcuts or tasks specific to the current project

@@ -125,9 +125,7 @@ defmodule Nix.Config do
   Recursively merge two keyword lists.
   """
   @spec merge(keyword, keyword) :: keyword
-  def merge(left, right) when is_list(left) and is_list(right) do
-    deep_merge(right, left, [], left, &merger/3)
-  end
+  defdelegate merge(left, right), to: Nix.DeepMerge
 
   ## priv
 
@@ -136,31 +134,6 @@ defmodule Nix.Config do
   defp fetch_app_env(app, [key | keys]) do
     with {:ok, nested} <- Access.fetch(app, key) do
       fetch_app_env(nested, keys)
-    end
-  end
-
-  defp deep_merge([], acc, append, _original, _merge_fn) do
-    acc ++ Enum.reverse(append)
-  end
-
-  defp deep_merge([{key, right} = item | tail], acc, append, original, merge_fn) do
-    case List.keyfind(original, key, 0) do
-      {^key, left} ->
-        new_acc = List.keystore(acc, key, 0, {key, merge_fn.(key, left, right)})
-        new_original = List.keydelete(original, key, 0)
-        deep_merge(tail, new_acc, append, new_original, merge_fn)
-
-      _else ->
-        new_append = [item | append]
-        deep_merge(tail, acc, new_append, original, merge_fn)
-    end
-  end
-
-  defp merger(_key, left, right) do
-    if Keyword.keyword?(left) and Keyword.keyword?(right) do
-      merge(left, right)
-    else
-      right
     end
   end
 end
