@@ -38,8 +38,6 @@ defmodule Nix.Std.FPTest do
   end
 
   describe "y" do
-    @describetag :f
-
     test "turing" do
       fac = fn fac ->
         fn
