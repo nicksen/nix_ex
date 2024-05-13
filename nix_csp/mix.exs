@@ -42,6 +42,7 @@ defmodule Nix.CSP.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:credo_contrib, "~> 0.2", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:doctor, "~> 0.21", only: :dev, runtime: false},
       {:ex_doc, "~> 0.32", only: :dev, runtime: false},
       {:makeup_eex, ">= 0.0.0", only: :dev, runtime: false},
       {:makeup_js, ">= 0.0.0", only: :dev, runtime: false},
@@ -65,6 +66,7 @@ defmodule Nix.CSP.MixProject do
         "format --check-formatted",
         "cmd mix recode",
         "credo suggest",
+        "doctor --raise --failed --summary",
         "dialyzer"
       ],
       "lint.fmt": [
@@ -76,6 +78,7 @@ defmodule Nix.CSP.MixProject do
         "format",
         "cmd mix recode --autocorrect",
         "credo suggest",
+        "doctor --raise --failed --summary",
         "dialyzer"
       ]
     ]

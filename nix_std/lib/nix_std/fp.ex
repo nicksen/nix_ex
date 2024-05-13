@@ -181,6 +181,7 @@ defmodule Nix.Std.FP do
   end
 
   @doc false
+  @spec turing(((term -> term) -> (term -> term))) :: (term -> term)
   def turing(f) when is_function(f, 1) do
     turing_inner().(turing_inner()).(f)
   end
@@ -194,6 +195,7 @@ defmodule Nix.Std.FP do
   end
 
   @doc false
+  @spec z(((term -> term) -> (term -> term))) :: (term -> term)
   def z(f) do
     fn a ->
       f.(z(f)).(a)

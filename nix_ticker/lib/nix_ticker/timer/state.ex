@@ -16,11 +16,17 @@ defmodule Nix.Ticker.Timer.State do
 
   ## api
 
+  @doc """
+  Creates new state.
+  """
   @spec new(keyword) :: t
   def new(opts) do
     struct!(__MODULE__, opts)
   end
 
+  @doc """
+  Modify `state` with `updates`.
+  """
   @spec update(t, keyword) :: t
   def update(state, updates) do
     struct!(state, updates)

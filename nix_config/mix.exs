@@ -40,6 +40,7 @@ defmodule Nix.Config.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:credo_contrib, "~> 0.2", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:doctor, "~> 0.21", only: :dev, runtime: false},
       {:ex_doc, "~> 0.32", only: :dev, runtime: false},
       {:markdown_formatter, "~> 0.6", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
@@ -61,6 +62,7 @@ defmodule Nix.Config.MixProject do
         "format --check-formatted",
         "cmd mix recode",
         "credo suggest",
+        "doctor --raise --failed --summary",
         "dialyzer"
       ],
       "lint.fmt": [
@@ -72,6 +74,7 @@ defmodule Nix.Config.MixProject do
         "format",
         "cmd mix recode --autocorrect",
         "credo suggest",
+        "doctor --raise --failed --summary",
         "dialyzer"
       ]
     ]
