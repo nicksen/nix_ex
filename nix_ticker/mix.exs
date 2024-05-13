@@ -5,13 +5,19 @@ defmodule Nix.Ticker.MixProject do
 
   def project do
     [
-      app: :ticker,
+      app: :nix_ticker,
       version: @vsn,
       elixir: "~> 1.16",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
+      docs: [
+        main: "readme",
+        api_reference: false,
+        extras: ["README.md"],
+        formatters: ["html"]
+      ],
       dialyzer: dialyzer()
     ]
   end
@@ -36,6 +42,7 @@ defmodule Nix.Ticker.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:credo_contrib, "~> 0.2", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.32", only: :dev, runtime: false},
       {:markdown_formatter, "~> 0.6", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:recode, "~> 0.7", only: [:dev, :test], runtime: false},

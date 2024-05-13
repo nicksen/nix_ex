@@ -3,12 +3,19 @@ defmodule Nix.Config do
   Utilities to manage runtime configuration.
   """
 
+  ## types
+
+  @type env :: atom
+
+  @type key :: atom
+  @type value :: term
+
   ## api
 
   @doc """
-  Retrieves value for environment.
+  Retrieves value for environment or nil if not set.
   """
-  @spec env_specific(keyword) :: term
+  @spec env_specific([{env, value} | {:else, value}]) :: value
   defmacro env_specific(config) do
     quote do
       unquote(Keyword.get_lazy(config, config_env(), fn -> Keyword.get(config, :else) end))
@@ -16,9 +23,11 @@ defmodule Nix.Config do
   end
 
   @doc """
-  Similar to `c:env_specific/1` but raises `KeyError` if value could not be extracted.
+  Retrieves value for environment or raises if not set.
+
+  Same as `env_specific/1` but raises instead of returning `nil` if not found.
   """
-  @spec env_specific!(keyword) :: term
+  @spec env_specific!([{env, value} | {:else, value}]) :: value
   defmacro env_specific!(config) do
     quote do
       unquote(
@@ -37,7 +46,14 @@ defmodule Nix.Config do
     end
   end
 
-  @spec os_env(name :: String.t(), default :: String.t() | nil) :: String.t() | nil
+  @doc """
+  Returns the value of the given environment variable.
+
+  The returned value is a string. If the variable is not set, returns the string specified in
+  `default` (`nil` by default).
+  """
+  @spec os_env(String.t(), String.t()) :: String.t()
+  @spec os_env(String.t(), nil) :: String.t() | nil
   def os_env(name, default \\ nil) do
     case System.fetch_env(name) do
       {:ok, value} -> value
@@ -45,58 +61,72 @@ defmodule Nix.Config do
     end
   end
 
+  @doc """
+  Returns the value of the given environment variable or raises if not found.
+
+  Same as `os_env/1` but raises instead of returning some default when the variable is not set.
+  """
+  @spec os_env!(String.t()) :: String.t()
   defdelegate os_env!(name), to: System, as: :fetch_env!
 
-  @spec app_env(path :: [atom], default :: term) :: term
-  def app_env(keys, default \\ nil) when is_list(keys) do
+  @doc """
+  Returns the value given by `path` from the application environment.
+
+  If the value doesn't exist, returns the `default` value (`nil` by default).
+  """
+  @spec app_env([key], value) :: value
+  def app_env(path, default \\ nil) when is_list(path) do
     env = Application.get_all_env(otp_app())
 
-    case fetch_app_env(env, keys) do
+    case fetch_app_env(env, path) do
       {:ok, value} -> value
       :error -> default
     end
   end
 
   @doc """
-  Similar to `c:app_env/2` but raises a `KeyError` if the (nested) env doesn't exist.
+  Returns the value given by `path` from the application environment.
+
+  Same as `app_env/1` but raises if the value doesn't exist.
   """
-  @spec app_env!(path :: [atom]) :: term
-  def app_env!(keys) when is_list(keys) do
+  @spec app_env!([key]) :: value
+  def app_env!(path) when is_list(path) do
     env = Application.get_all_env(otp_app())
 
-    case fetch_app_env(env, keys) do
+    case fetch_app_env(env, path) do
       {:ok, value} -> value
-      :error -> raise KeyError, "could not fetch #{inspect(keys)} in #{inspect(env)}"
+      :error -> raise KeyError, "could not fetch #{inspect(path)} in #{inspect(env)}"
     end
   end
 
   @doc """
-  Get otp app.
+  Get the configured otp app.
   """
-  @spec otp_app() :: atom
+  @spec otp_app() :: Application.app()
   def otp_app, do: Application.fetch_env!(:nix_config, :otp_app)
 
   @doc """
-  Get the current environment.
+  Get the configured environment.
   """
-  @spec config_env() :: atom
+  @spec config_env() :: env
   def config_env, do: Application.fetch_env!(:nix_config, :env)
 
   @doc """
-  Deeply merge keyword lists.
-
-  Nested keyword lists are also merged.
+  Recursively merge a list of keyword lists.
   """
-  @spec merge(keyword, keyword) :: keyword
-  def merge(left, right) when is_list(left) and is_list(right) do
-    deep_merge(right, left, [], left, &merger/3)
-  end
-
-  @spec merge(nonempty_list(keyword)) :: keyword
+  @spec merge([keyword, ...]) :: keyword
   def merge([initial | overrides]) do
     for override <- overrides, reduce: initial do
       current -> merge(current, override)
     end
+  end
+
+  @doc """
+  Recursively merge two keyword lists.
+  """
+  @spec merge(keyword, keyword) :: keyword
+  def merge(left, right) when is_list(left) and is_list(right) do
+    deep_merge(right, left, [], left, &merger/3)
   end
 
   ## priv

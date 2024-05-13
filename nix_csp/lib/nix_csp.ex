@@ -1,8 +1,11 @@
 defmodule Nix.CSP do
   @moduledoc """
-  Module that includes `plug` and `phoenix_live_view` helpers to handle [Content-Security-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) headers.
+  Module that includes `plug` and `phoenix_live_view` helpers to handle
+  [Content-Security-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) headers.
 
-  For inline `<style>` and `<script>` tags, nonce should be used. When the HTTP request is processed, a nonce is added to the process dictionary. This ensures the nonce stays the same throughout the call, as the nonce in the tags must match the nonce in the header.
+  For inline `<style>` and `<script>` tags, nonce should be used. When the HTTP request is
+  processed, a nonce is added to the process dictionary. This ensures the nonce stays the same
+  throughout the call, as the nonce in the tags must match the nonce in the header.
 
   To allow for inline `<style>` and/or `<script>` tags, you must set a `'nonce'` source.
 
@@ -10,77 +13,85 @@ defmodule Nix.CSP do
 
   To set up `#{inspect(__MODULE__)}` in your app:
 
-  ### 1) Configure `lib/your_app_web.ex`
+  ### 1. Configure imports
 
-  Ensure you import the helpers in `YourAppWeb`:
+  Ensure you import the helpers:
 
-      def router do
-        quote do
-          use Phoenix.Router, helpers: false
+  ```elixir
+  def router do
+    quote do
+      use Phoenix.Router, helpers: false
 
-          # Import common connection and controller functions to use in pipelines
-          import Phoenix.Controller
-          import Phoenix.LiveView.Router
-          import Plug.Conn
+      # Import common connection and controller functions to use in pipelines
+      import Phoenix.Controller
+      import Phoenix.LiveView.Router
+      import Plug.Conn
 
-          import #{inspect(__MODULE__)}, only: [put_content_security_policy: 2]
-        end
-      end
+      import #{inspect(__MODULE__)}, only: [put_content_security_policy: 2] # <-- add
+    end
+  end
 
-      # ...
+  # ...
 
-      def html do
-        quote do
-          use Phoenix.Component
+  def html do
+    quote do
+      use Phoenix.Component
 
-          # Import convenience functions from controllers
-          import Phoenix.Controller,
-            only: [get_csrf_token: 0, view_module: 1, view_template: 1]
+      # Import convenience functions from controllers
+      import Phoenix.Controller,
+        only: [get_csrf_token: 0, view_module: 1, view_template: 1]
 
-          import #{inspect(__MODULE__)}, only: [get_csp_nonce: 0]
+      import #{inspect(__MODULE__)}, only: [get_csp_nonce: 0] # <-- add
 
-          # Include general helpers for rendering HTML
-          unquote(html_helpers())
-        end
-      end
+      # Include general helpers for rendering HTML
+      unquote(html_helpers())
+    end
+  end
 
-      # ...
+  # ...
 
-      def live_view do
-        quote do
-          use Phoenix.LiveView,
-            layout: {YourAppWeb.Layouts, :app}
+  def live_view do
+    quote do
+      use Phoenix.LiveView,
+        layout: {YourAppWeb.Layouts, :app}
 
-          on_mount #{inspect(__MODULE__)}
+      on_mount #{inspect(__MODULE__)} # <-- add
 
-          unquote(html_helpers())
-        end
-      end
+      unquote(html_helpers())
+    end
+  end
+  ```
 
-  ### 2) Add nonce metatag to the HTML document
+  ### 2. Add nonce metatag to the HTML document
 
-  Add the following metatag to the `<head>` in `lib/your_app_web/components/layouts/root.html.heex`.
+  Add the following metatag to the `<head>` in your root layout:
 
-      <meta name="csp-nonce" content={get_csp_nonce()} />
+  ```heex
+  <meta name="csp-nonce" content={get_csp_nonce()} />
+  ```
 
-  ### 3) Pass the CSP nonce to the liveview socket
+  ### 3. Pass the CSP nonce to the liveview socket
 
-  Pass the nonce to the `LiveView` socket in `assets/js/app.js`.
+  Pass the nonce to the `LiveView` socket in `assets/js/app.js`:
 
-      let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-      let cspNonce = document.querySelector("meta[name='csp-nonce']").getAttribute("content")
-      let liveSocket = new LiveSocket("/live", Socket, {
-        longPollFallbackMs: 2500,
-        params: { _csrf_token: csrfToken, _csp_nonce: cspNonce }
-      })
+  ```js
+  const csrfToken = document.querySelector(`meta[name="csrf-token"]`)?.getAttribute(`content`)
+  const cspNonce = document.querySelector(`meta[name="csp-nonce"]`)?.getAttribute(`content`)
+  const liveSocket = new LiveSocket(`/live`, Socket, {
+    longPollFallbackMs: 2500,
+    params: { _csrf_token: csrfToken, _csp_nonce: cspNonce }
+  })
+  ```
 
   ### Usage
 
   If you got inline `<style>` or `<script>` tags, you must set the `nonce` attribute:
 
-      <style nonce={get_csp_nonce()}>
-        // ...
-      </style>
+  ```heex
+  <style nonce={get_csp_nonce()}>
+    // ...
+  </style>
+  ```
   """
 
   import Plug.Conn
@@ -89,12 +100,20 @@ defmodule Nix.CSP do
 
   @default_csp_size 24
 
+  ## types
+
+  @type conn :: Plug.Conn.t()
+
+  ## api
+
   @doc """
   Set a Content-Security-Policy header.
 
-  By default the policy is `default-src 'self'`, `'nonce'` source will be expanded with an auto-generated nonce that is persisted in the process dictionary.
+  By default the policy is `default-src 'self'`, `'nonce'` source will be expanded with an
+  auto-generated nonce that is persisted in the process dictionary.
 
-  The options can be a function or a keyword list. Sources can be a binary or list of binaries. Duplicate directives will be merged together.
+  The options can be a function or a keyword list. Sources can be a binary or list of binaries.
+  Duplicate directives will be merged together.
 
   ## Example
 
@@ -107,8 +126,8 @@ defmodule Nix.CSP do
 
       plug :put_content_security_policy, &YourAppWeb.CSPPolicy.opts/1
   """
-  @spec put_content_security_policy(Plug.Conn.t(), keyword | opts_fun) :: Plug.Conn.t()
-        when opts_fun: (Plug.Conn.t() -> keyword)
+  @spec put_content_security_policy(conn, keyword | opts_fun) :: conn
+        when opts_fun: (conn -> keyword)
   def put_content_security_policy(conn, opts_or_fun)
 
   def put_content_security_policy(conn, fun) when is_function(fun, 1) do
@@ -146,7 +165,7 @@ defmodule Nix.CSP do
 
   Generates a nonce and stores it in the process dictionary if it doesn't exist.
 
-  The supported options are:
+  ## Options
 
     * `:iv_size` - how many random bytes to generate (default 24).
     * `:regenerate` - use to force a new nonce (default false).
@@ -176,9 +195,7 @@ defmodule Nix.CSP do
     :ok
   end
 
-  @doc """
-  Load the CSP nonce into the LiveView process.
-  """
+  @doc false
   @spec on_mount(atom, map, map, socket) :: {:cont, socket} when socket: term
   def on_mount(name, params, session, socket)
 
