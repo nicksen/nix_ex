@@ -1,5 +1,5 @@
-elixir 1.16.2-otp-26
-erlang 26.2.5
-lefthook 1.6.10
-nodejs 22.1.0
-pnpm 9.1.0
+elixir 1.16.3-otp-26
+erlang 27.0
+lefthook 1.6.12
+pnpm 9.1.2
+nodejs 22.2.0
