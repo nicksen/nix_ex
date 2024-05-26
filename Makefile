@@ -15,6 +15,11 @@ CACHE_DIR ?= $(CWD)/$(CACHE)
 PROJECTS := nix_config nix_csp nix_std nix_ticker
 
 
+# functions
+
+projects_subtask = $(foreach proj,$(PROJECTS),$(1).$(proj))
+
+
 # targets
 
 .PHONY: all
@@ -23,50 +28,50 @@ all: help
 
 .PHONY: build
 ## build: compile projects
-build: $(foreach proj,$(PROJECTS),build.$(proj))
+build: $(call projects_subtask,build)
 
 
 .PHONY: lint
 ## lint: run linters
-lint: $(foreach proj,$(PROJECTS),lint.$(proj))
+lint: $(call projects_subtask,lint)
 
 .PHONY: fmt
 ## fmt: run formatters
-fmt: $(foreach proj,$(PROJECTS),fmt.$(proj))
+fmt: $(call projects_subtask,fmt)
 
 
 .PHONY: test
 ## test: run tests
-test: $(foreach proj,$(PROJECTS),test.$(proj))
+test: $(call projects_subtask,test)
 
 
 .PHONY: deps
 ## deps: fetch dependencies
-deps: $(foreach proj,$(PROJECTS),deps.$(proj))
+deps: $(call projects_subtask,deps)
 
 .PHONY: deps.up
 ## deps.up: update dependencies
-deps.up: $(foreach proj,$(PROJECTS),deps.up.$(proj))
+deps.up: $(call projects_subtask,deps.up)
 
 
 .PHONY: clean
 ## clean: cleanup build targets
-clean: $(foreach proj,$(PROJECTS),clean.$(proj))
+clean: $(call projects_subtask,clean)
 
 .PHONY: deps.clean
 ## deps.clean: cleanup dependencies
 deps.clean:
-	@rm -rf $(foreach proj,$(PROJECTS),"$(proj)/{_build,deps}")
+	@rm -rf $(foreach proj,$(PROJECTS),"./$(proj)/_build" "./$(proj)/deps")
 
 .PHONY: cache.clean
 ## cache.clean: cleanup cache
 cache.clean:
-	@rm -rf "$(CACHE_DIR)" $(foreach proj,$(PROJECTS),"$(proj)/$(CACHE)")
+	@rm -rf "$(CACHE_DIR)" $(foreach proj,$(PROJECTS),"./$(proj)/$(CACHE)")
 
 .PHONY: lsp.clean
 ## lsp.clean: cleanup lsp data
 lsp.clean:
-	@rm -rf $(foreach proj,$(PROJECTS),"$(proj)/.elixir_ls")
+	@rm -rf $(foreach proj,$(PROJECTS),"./$(proj)/.elixir_ls")
 
 
 .PHONY: help
