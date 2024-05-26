@@ -86,7 +86,6 @@ defmodule Nix.Std.MixProject do
       ],
       ignore_warnings: ".dialyzer_ignore.exs",
       list_unused_filters: true,
-      plt_core_path: "../.cache/plts",
       plt_local_path: ".cache/plts"
     ]
   end
