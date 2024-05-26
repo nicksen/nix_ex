@@ -12,10 +12,9 @@ CWD ?= .
 CACHE := .cache
 CACHE_DIR ?= $(CWD)/$(CACHE)
 
-PROJECTS :=
+PROJECTS := nix_std
 PROJECTS += nix_config
 PROJECTS += nix_csp
-PROJECTS += nix_std
 PROJECTS += nix_ticker
 
 
