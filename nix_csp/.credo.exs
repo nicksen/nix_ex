@@ -134,6 +134,19 @@
         ],
         disabled: [
           #
+          # Temporaily disabled until they work on Elixir v1.17
+          {Credo.Check.Consistency.SpaceAroundOperators, []},
+          {Credo.Check.Consistency.SpaceInParentheses, []},
+          {Credo.Check.Design.SkipTestWithoutComment, []},
+          {Credo.Check.Readability.ParenthesesInCondition, []},
+          {Credo.Check.Readability.RedundantBlankLines, []},
+          {Credo.Check.Readability.Semicolons, []},
+          {Credo.Check.Readability.SpaceAfterCommas, []},
+          {Credo.Check.Readability.StringSigils, []},
+          {Credo.Check.Readability.TrailingWhiteSpace, []},
+          {CredoContrib.Check.FunctionBlockSyntax, []},
+
+          #
           # Checks scheduled for next check update (opt-in for now, just replace `false` with `[]`)
 
           #

@@ -1,4 +1,4 @@
-elixir 1.16.3-otp-26
+elixir 1.17.0-rc.0-otp-27
 erlang 27.0
 lefthook 1.6.12
 pnpm 9.1.2
