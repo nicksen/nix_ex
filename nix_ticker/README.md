@@ -9,7 +9,7 @@ The package can be installed by adding `nix_ticker` to your list of dependencies
 ```elixir
 def deps do
   [
-    {:nix_ticker, github: "nicksen/nix_ex", sparse: "nix_ticker"}
+    {:nix_ticker, github: "nicksen/nix_ex", subdir: "nix_ticker", depth: 1}
   ]
 end
 ```

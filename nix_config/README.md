@@ -7,7 +7,7 @@ The package can be installed by adding `nix_config` to your list of dependencies
 ```elixir
 def deps do
   [
-    {:nix_config, github: "nicksen/nix_ex", sparse: "nix_config"}
+    {:nix_config, github: "nicksen/nix_ex", subdir: "nix_config", depth: 1}
   ]
 end
 ```
