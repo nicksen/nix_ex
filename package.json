@@ -3,7 +3,21 @@
   "name": "nix_ex",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "lint:check": "run-p lint:check:**",
+    "lint:check:deps:audit": "pnpm audit",
+    "lint:check:fmt:base": "prettier -c .",
+    "lint:check:fmt:pkg": "prettier-package-json -l",
+    "lint:fmt": "run-p lint:fmt:**",
+    "lint:fmt:deps:audit": "pnpm audit --fix",
+    "lint:fmt:style:base": "prettier -w .",
+    "lint:fmt:style:pkg": "prettier-package-json --write",
+    "test": "node --test"
+  },
   "devDependencies": {
-    "prettier-package-json": "^2.8.0"
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.2.5",
+    "prettier-package-json": "^2.8.0",
+    "prettier-plugin-organize-imports": "^3.2.4"
   }
 }
