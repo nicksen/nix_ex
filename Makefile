@@ -38,11 +38,11 @@ build: $(call projects_subtask,build)
 
 .PHONY: lint
 ## lint: run linters
-lint: $(call projects_subtask,lint)
+lint: pnpm.lint $(call projects_subtask,lint)
 
 .PHONY: fmt
 ## fmt: run formatters
-fmt: $(call projects_subtask,fmt)
+fmt: pnpm.fmt $(call projects_subtask,fmt)
 
 
 .PHONY: test
@@ -52,11 +52,11 @@ test: $(call projects_subtask,test)
 
 .PHONY: deps
 ## deps: fetch dependencies
-deps: $(call projects_subtask,deps)
+deps: pnpm.deps $(call projects_subtask,deps)
 
 .PHONY: deps.up
 ## deps.up: update dependencies
-deps.up: $(call projects_subtask,deps.up)
+deps.up: pnpm.deps.up $(call projects_subtask,deps.up)
 
 
 .PHONY: clean
@@ -66,7 +66,7 @@ clean: $(call projects_subtask,clean)
 .PHONY: deps.clean
 ## deps.clean: cleanup dependencies
 deps.clean:
-	@rm -rf $(foreach proj,$(PROJECTS),"./$(proj)/_build" "./$(proj)/deps")
+	@rm -rf ./node_modules $(foreach proj,$(PROJECTS),"./$(proj)/_build" "./$(proj)/deps")
 
 .PHONY: cache.clean
 ## cache.clean: cleanup cache
@@ -77,6 +77,23 @@ cache.clean:
 ## lsp.clean: cleanup lsp data
 lsp.clean:
 	@rm -rf $(foreach proj,$(PROJECTS),"./$(proj)/.elixir_ls")
+
+
+.PHONY: pnpm.lint
+pnpm.lint:
+	@pnpm run lint:check
+
+.PHONY: pnpm.fmt
+pnpm.fmt:
+	@pnpm run lint:fmt
+
+.PHONY: pnpm.deps
+pnpm.deps:
+	@pnpm install --frozen
+
+.PHONY: pnpm.deps.up
+pnpm.deps.up:
+	@pnpm update -L
 
 
 .PHONY: help
