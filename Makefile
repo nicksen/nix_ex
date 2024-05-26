@@ -1,10 +1,12 @@
 # make settings
+
 SHELL := bash
 .ONESHELL:
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --warn-undefined-variables
+
 
 # project-wide variables
 
@@ -80,7 +82,7 @@ lsp.clean:
 .PHONY: help
 help:
 	@printf "Usage:\n"
-	@sed -n "s/^## \+\(.*\): *\(.*\)/$$(tput setaf 3)\1$$(tput sgr0):\2/p" $(MAKEFILE_LIST) \
+	sed -n "s/^## \+\(.*\): *\(.*\)/$$(tput setaf 3)\1$$(tput sgr0):\2/p" $(MAKEFILE_LIST) \
 		| column -t -s ":" \
 		| sed -e "s/^/  /"
 
@@ -88,34 +90,34 @@ help:
 .PHONY: build.%
 build.%:
 	@pushd "$*"
-	@mix compile
+	mix compile
 
 .PHONY: lint.%
 lint.%:
-	@pushd "$*"
-	@mix lint.check
+	@-pushd "$*"
+	mix lint.check
 
 .PHONY: fmt.%
 fmt.%:
 	@pushd "$*"
-	@mix lint.fmt
+	mix lint.fmt
 
 .PHONY: test.%
 test.%:
-	@pushd "$*"
-	@mix test
+	@-pushd "$*"
+	mix test
 
 .PHONY: deps.up.%
 deps.up.%:
 	@pushd "$*"
-	@mix deps.update --all
+	mix deps.update --all
 
 .PHONY: deps.%
 deps.%:
 	@pushd "$*"
-	@mix deps.get
+	mix deps.get
 
 .PHONY: clean.%
 clean.%:
 	@pushd "$*"
-	@mix clean
+	mix clean
