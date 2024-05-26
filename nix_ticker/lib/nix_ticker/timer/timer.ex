@@ -16,13 +16,16 @@ defmodule Nix.Ticker.Timer do
   @supervisor Nix.Ticker.TimerSupervisor
   @tasks Nix.Ticker.TaskSupervisor
 
+  ## types
+
+  @type on_start :: DynamicSupervisor.on_start_child()
+
   ## api
 
   @doc """
   Start and supervise a new timer.
   """
-  @spec register_new(Nix.Ticker.callable(), Nix.Ticker.options()) ::
-          DynamicSupervisor.on_start_child()
+  @spec register_new(Nix.Ticker.callable(), Nix.Ticker.options()) :: on_start
   def register_new(callable, opts) do
     DynamicSupervisor.start_child(@supervisor, {__MODULE__, {callable, opts}})
   end

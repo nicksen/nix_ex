@@ -64,22 +64,16 @@ defmodule Nix.CSP.MixProject do
         "deps.audit",
         "xref graph --label compile-connected --fail-above 0",
         "format --check-formatted",
-        "cmd mix recode",
+        "cmd mix recode --no-autocorrect",
         "credo suggest",
         "doctor --raise --failed --summary",
         "dialyzer"
       ],
       "lint.fmt": [
-        "compile --force --all-warnings --warnings-as-errors",
-        "do deps.unlock --unused + deps.clean --unused",
-        "cmd mix hex.audit",
-        "deps.audit",
-        "xref graph --label compile-connected --fail-above 0",
+        "deps.unlock --unused",
+        "deps.clean --unused",
         "format",
-        "cmd mix recode --autocorrect",
-        "credo suggest",
-        "doctor --raise --failed --summary",
-        "dialyzer"
+        "cmd mix recode --autocorrect"
       ]
     ]
   end
@@ -88,6 +82,7 @@ defmodule Nix.CSP.MixProject do
     [
       flags: [
         :error_handling,
+        :missing_return,
         :no_undefined_callbacks,
         :underspecs,
         :unknown,

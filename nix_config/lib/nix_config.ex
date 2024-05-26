@@ -124,6 +124,7 @@ defmodule Nix.Config do
   @doc """
   Recursively merge two keyword lists.
   """
+  @spec merge(map, map) :: map
   @spec merge(keyword, keyword) :: keyword
   defdelegate merge(left, right), to: Nix.DeepMerge
 

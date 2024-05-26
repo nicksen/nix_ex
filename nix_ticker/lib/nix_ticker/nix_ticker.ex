@@ -44,7 +44,7 @@ defmodule Nix.Ticker do
       iex> Ticker.start_timer({MyMod, :fun, [node(), self()]})
       {:ok, #PID<0.140.0>}
   """
-  @spec start_timer(callable, keyword) :: {:ok, pid} | {:error, {:already_started, pid}}
+  @spec start_timer(callable, keyword) :: Timer.on_start()
   def start_timer(callable, opts \\ []) do
     opts = NimbleOptions.validate!(opts, @options_schema)
     Timer.register_new(callable, opts)
