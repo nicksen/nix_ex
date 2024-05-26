@@ -44,6 +44,10 @@ test: $(foreach proj,$(PROJECTS),test.$(proj))
 ## deps: fetch dependencies
 deps: $(foreach proj,$(PROJECTS),deps.$(proj))
 
+.PHONY: deps.up
+## deps.up: update dependencies
+deps.up: $(foreach proj,$(PROJECTS),deps.up.$(proj))
+
 
 .PHONY: clean
 ## clean: cleanup build targets
@@ -92,6 +96,11 @@ fmt.%:
 test.%:
 	@pushd "$*"
 	@mix test
+
+.PHONY: deps.up.%
+deps.up.%:
+	@pushd "$*"
+	@mix deps.update --all
 
 .PHONY: deps.%
 deps.%:
