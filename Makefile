@@ -77,7 +77,7 @@ cache.clean:
 .PHONY: lsp.clean
 ## lsp.clean: cleanup lsp data
 lsp.clean:
-	@rm -rf $(foreach proj,$(PROJECTS),"./$(proj)/.elixir_ls")
+	@rm -rf "./.elixir_ls" "./.elixir-tools" $(foreach proj,$(PROJECTS),"./$(proj)/.elixir_ls" "./$(proj)/.elixir-tools")
 
 
 .PHONY: pnpm.lint
