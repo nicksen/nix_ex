@@ -28,14 +28,10 @@ defmodule Nix.Dev.Run.AllTest do
       assert_tasks ["!test", "?test"] == ["!test", "?test"]
     end
 
-    # exclusions aren't implemented yet
-    @tag :skip
     test "exclude task from wildcard" do
       assert_tasks "append.*(!a)" == ["append.b"]
     end
 
-    # exclusions aren't implemented yet
-    @tag :skip
     test "exclude task from globstar expansion" do
       assert_tasks "append.**(!c)" == ["append.a", "append.a.d", "append.b"]
     end

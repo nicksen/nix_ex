@@ -38,8 +38,6 @@ defmodule Nix.Dev.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:glob_ex, "~> 0.1"},
-
       ## testing
       {:stream_data, "~> 1.1", only: [:dev, :test]},
 
