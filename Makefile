@@ -112,7 +112,7 @@ build.%:
 
 .PHONY: lint.%
 lint.%:
-	@-pushd "$*"
+	@pushd "$*"
 	mix lint.check
 
 .PHONY: fmt.%
@@ -122,7 +122,7 @@ fmt.%:
 
 .PHONY: test.%
 test.%:
-	@-pushd "$*"
+	@pushd "$*"
 	mix test
 
 .PHONY: deps.up.%
