@@ -1,7 +1,7 @@
-export default {
-	printWidth: 98,
+/** @type {import("prettier").Config} */
+const config = {
+	printWidth: 100,
 	tabWidth: 2,
-	useTabs: true,
 	semi: false,
 	singleQuote: false,
 	trailingComma: "all",
@@ -10,9 +10,8 @@ export default {
 	arrowParens: "always",
 	proseWrap: "always",
 	htmlWhitespaceSensitivity: "ignore",
-	endOfLine: "lf",
 	embeddedLanguageFormatting: "auto",
-	plugins: ["prettier-plugin-organize-imports", "prettier-plugin-sh"],
+	plugins: ["prettier-plugin-organize-imports", "prettier-plugin-pkg", "prettier-plugin-sh"],
 	keepComments: true,
 	binaryNextLine: true,
 	switchCaseIndent: false,
@@ -23,23 +22,35 @@ export default {
 	experimentalWasm: true,
 	overrides: [
 		{
-			files: ["*.json", "*.{yml,yaml}"],
+			files: [`*.{css,js,ts,sh,bash}`],
 			options: {
-				useTabs: false,
+				printWidth: 98,
+				useTabs: true,
 			},
 		},
+
 		{
-			files: ["*.md"],
+			files: [`*.{js,ts}`],
 			options: {
-				printWidth: 100,
-				useTabs: false,
+				parser: `typescript`,
 			},
 		},
+
 		{
-			files: ["*.svg"],
+			files: [`*.json`],
 			options: {
-				parser: "html",
+				parser: `jsonc`,
+				trailingComma: `none`,
+			},
+		},
+
+		{
+			files: [`package.json`],
+			options: {
+				parser: `json-stringify`,
 			},
 		},
 	],
 }
+
+export default config

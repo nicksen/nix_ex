@@ -23,10 +23,18 @@ PROJECTS += nix_ticker
 
 # functions
 
-projects_subtask = $(foreach proj,$(PROJECTS),$(1).$(proj))
+each = $(foreach proj,$(1),$(subst %proj%,$(proj),$(2)))
+
+each_mix_project = $(call each,$(PROJECTS),$(1))
+each_project = $(call each,pnpm $(PROJECTS),$(1))
+
+projects_subtask = $(call each_project,$(1).%proj%)
 
 
 # targets
+
+# .PHONY: def
+# def: ; @echo $(call projects_subtask,build)
 
 .PHONY: all
 all: help
@@ -37,13 +45,17 @@ all: help
 build: $(call projects_subtask,build)
 
 
+.PHONY: install
+install: $(call projects_subtask,install)
+
+
 .PHONY: lint
 ## lint: run linters
-lint: pnpm.lint $(call projects_subtask,lint)
+lint: $(call projects_subtask,lint)
 
 .PHONY: fmt
 ## fmt: run formatters
-fmt: pnpm.fmt $(call projects_subtask,fmt)
+fmt: $(call projects_subtask,fmt)
 
 
 .PHONY: test
@@ -53,11 +65,11 @@ test: $(call projects_subtask,test)
 
 .PHONY: deps
 ## deps: fetch dependencies
-deps: pnpm.deps $(call projects_subtask,deps)
+deps: $(call projects_subtask,deps)
 
 .PHONY: deps.up
 ## deps.up: update dependencies
-deps.up: pnpm.deps.up $(call projects_subtask,deps.up)
+deps.up: $(call projects_subtask,deps.up)
 
 
 .PHONY: clean
@@ -67,34 +79,18 @@ clean: $(call projects_subtask,clean)
 .PHONY: deps.clean
 ## deps.clean: cleanup dependencies
 deps.clean:
-	@rm -rf ./node_modules $(foreach proj,$(PROJECTS),"./$(proj)/_build" "./$(proj)/deps")
+	@rm -rf ./node_modules $(call each_mix_project,"./%proj%/_build" "./%proj%/deps")
 
 .PHONY: cache.clean
 ## cache.clean: cleanup cache
 cache.clean:
-	@rm -rf "$(CACHE_DIR)" $(foreach proj,$(PROJECTS),"./$(proj)/$(CACHE)")
+	@rm -rf "$(CACHE_DIR)" $(call each_mix_project,"./%proj%/$(CACHE)")
 
 .PHONY: lsp.clean
 ## lsp.clean: cleanup lsp data
 lsp.clean:
-	@rm -rf "./.elixir_ls" "./.elixir-tools" $(foreach proj,$(PROJECTS),"./$(proj)/.elixir_ls" "./$(proj)/.elixir-tools")
+	@rm -rf "./.elixir_ls" "./.elixir-tools" $(call each_mix_project,"./%proj%/.elixir_ls" "./%proj%/.elixir-tools")
 
-
-.PHONY: pnpm.lint
-pnpm.lint:
-	@pnpm run lint:check
-
-.PHONY: pnpm.fmt
-pnpm.fmt:
-	@pnpm run lint:fmt
-
-.PHONY: pnpm.deps
-pnpm.deps:
-	@pnpm install --frozen
-
-.PHONY: pnpm.deps.up
-pnpm.deps.up:
-	@pnpm update -L
 
 
 .PHONY: help
@@ -105,35 +101,72 @@ help:
 		| sed -e "s/^/  /"
 
 
+.PHONY: build.pnpm
+build.pnpm:
+	@pnpm run dist
+
 .PHONY: build.%
 build.%:
 	@pushd "$*"
 	mix compile
+
+.PHONY: install.nix_dev
+install.nix_dev:
+	@pushd "nix_dev"
+	MIX_ENV=prod mix do archive.build + archive.install --force
+
+.PHONY: install.%
+install.%:
+	@# noop
+
+.PHONY: lint.pnpm
+lint.pnpm:
+	@pnpm run lint:check
 
 .PHONY: lint.%
 lint.%:
 	@pushd "$*"
 	mix lint.check
 
+.PHONY: fmt.pnpm
+fmt.pnpm:
+	@pnpm run lint:fmt
+
 .PHONY: fmt.%
 fmt.%:
 	@pushd "$*"
 	mix lint.fmt
+
+.PHONY: test.pnpm
+test.pnpm:
+	@pnpm test
 
 .PHONY: test.%
 test.%:
 	@pushd "$*"
 	mix test
 
+.PHONY: deps.up.pnpm
+deps.up.pnpm:
+	@pnpm update -L
+
 .PHONY: deps.up.%
 deps.up.%:
 	@pushd "$*"
 	mix deps.update --all
 
+.PHONY: deps.pnpm
+deps.pnpm:
+	@pnpm install --frozen
+
 .PHONY: deps.%
 deps.%:
 	@pushd "$*"
 	mix deps.get
+
+.PHONY: clean.pnpm
+clean.pnpm:
+	@pnpm run clean
 
 .PHONY: clean.%
 clean.%:
