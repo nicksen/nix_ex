@@ -12,17 +12,17 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5
       prettier:
-        specifier: ^3.3.0
-        version: 3.3.0
+        specifier: ^3.3.2
+        version: 3.3.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.4
-        version: 3.2.4(prettier@3.3.0)(typescript@5.4.5)
+        version: 3.2.4(prettier@3.3.2)(typescript@5.4.5)
       prettier-plugin-pkg:
         specifier: ^0.18.1
-        version: 0.18.1(prettier@3.3.0)
+        version: 0.18.1(prettier@3.3.2)
       prettier-plugin-sh:
         specifier: ^0.14.0
-        version: 0.14.0(prettier@3.3.0)
+        version: 0.14.0(prettier@3.3.2)
 
 packages:
 
@@ -342,8 +342,8 @@ packages:
     peerDependencies:
       prettier: ^3.0.3
 
-  prettier@3.3.0:
-    resolution: {integrity: sha512-J9odKxERhCQ10OC2yb93583f6UnYutOeiV5i0zEDS7UGTdUt0u+y8erxl3lBKvwo/JHyyoEdXjwp4dke9oyZ/g==}
+  prettier@3.3.2:
+    resolution: {integrity: sha512-rAVeHYMcv8ATV5d508CFdn+8/pHPpXeIid1DdrPwXnaAdH7cqjVbpJaT5eq4yRAFU/lsbwYwSF/n5iNrdJHPQA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -437,8 +437,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  tslib@2.6.2:
-    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
+  tslib@2.6.3:
+    resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
 
   typed-array-buffer@1.0.2:
     resolution: {integrity: sha512-gEymJYKZtKXzzBzM4jqa9w6Q1Jjm7x2d+sh19AdsD4wqnMPDYyvwpsIc2Q/835kHuo3BEQ7CjelGhfTsoBb2MQ==}
@@ -849,22 +849,22 @@ snapshots:
 
   possible-typed-array-names@1.0.0: {}
 
-  prettier-plugin-organize-imports@3.2.4(prettier@3.3.0)(typescript@5.4.5):
+  prettier-plugin-organize-imports@3.2.4(prettier@3.3.2)(typescript@5.4.5):
     dependencies:
-      prettier: 3.3.0
+      prettier: 3.3.2
       typescript: 5.4.5
 
-  prettier-plugin-pkg@0.18.1(prettier@3.3.0):
+  prettier-plugin-pkg@0.18.1(prettier@3.3.2):
     dependencies:
-      prettier: 3.3.0
+      prettier: 3.3.2
 
-  prettier-plugin-sh@0.14.0(prettier@3.3.0):
+  prettier-plugin-sh@0.14.0(prettier@3.3.2):
     dependencies:
       mvdan-sh: 0.10.1
-      prettier: 3.3.0
+      prettier: 3.3.2
       sh-syntax: 0.4.2
 
-  prettier@3.3.0: {}
+  prettier@3.3.2: {}
 
   read-pkg@3.0.0:
     dependencies:
@@ -918,7 +918,7 @@ snapshots:
 
   sh-syntax@0.4.2:
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.6.3
 
   shebang-command@1.2.0:
     dependencies:
@@ -983,7 +983,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  tslib@2.6.2: {}
+  tslib@2.6.3: {}
 
   typed-array-buffer@1.0.2:
     dependencies:

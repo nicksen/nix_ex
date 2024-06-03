@@ -7,7 +7,7 @@ defmodule Nix.Ticker.MixProject do
     [
       app: :nix_ticker,
       version: @vsn,
-      elixir: "~> 1.16",
+      elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
