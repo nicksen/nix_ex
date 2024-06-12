@@ -28,6 +28,12 @@ pre-commit:
       run: mix lint.fmt
       stage_fixed: true
 
+    nix_test_mix_lint:
+      root: "nix_test/"
+      glob: "*.{ex,exs,heex,md}"
+      run: mix lint.fmt
+      stage_fixed: true
+
     nix_ticker_mix_lint:
       root: "nix_ticker/"
       glob: "*.{ex,exs,heex,md}"
