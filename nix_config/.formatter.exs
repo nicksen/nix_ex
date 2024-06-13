@@ -1,5 +1,2 @@
-[
-  inputs: ["*.{ex,exs,md}", "{config,lib,test}/**/*.{ex,exs}"],
-  plugins: [Styler, MarkdownFormatter],
-  markdown: [line_length: 100]
-]
+{opts, []} = Code.eval_file("../format.config.exs", __DIR__)
+opts
