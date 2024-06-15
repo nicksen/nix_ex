@@ -67,5 +67,13 @@ defmodule Nix.ConfigTest do
     test "list of keywords" do
       assert merge([[a: 1], [a: 2], [a: 3], [a: 4], [a: 5]]) == [a: 5]
     end
+
+    test "don't override with nil" do
+      assert merge([a: 1], nil) == [a: 1]
+    end
+
+    test "override with value after nil" do
+      assert merge([[a: 1], nil, [a: 2]]) == [a: 2]
+    end
   end
 end
