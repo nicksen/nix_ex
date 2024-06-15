@@ -55,7 +55,7 @@ defmodule Nix.Config do
   @spec os_env(String.t(), String.t()) :: String.t()
   @spec os_env(String.t(), nil) :: String.t() | nil
   def os_env(name, default \\ nil) do
-    case System.fetch_env(name) do
+    case fetch_os_env(name) do
       {:ok, value} -> value
       :error -> default
     end
@@ -68,6 +68,15 @@ defmodule Nix.Config do
   """
   @spec os_env!(String.t()) :: String.t()
   defdelegate os_env!(name), to: System, as: :fetch_env!
+
+  @doc """
+  Returns the value of the given environment variable or `:error` if nout found.
+
+  If the environment variable `name` is set, then `{:ok, value}` is returned where `value` is a
+  string. If `name` is not set `:error` is returned.
+  """
+  @spec fetch_os_env(String.t()) :: {:ok, String.t()} | :error
+  defdelegate fetch_os_env(name), to: System, as: :fetch_env
 
   @doc """
   Returns the value given by `path` from the application environment.

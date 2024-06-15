@@ -31,4 +31,16 @@ defmodule Nix.Config.SystemEnvTest do
       assert_raise System.EnvError, fn -> os_env!("unset") end
     end
   end
+
+  describe "fetch_os_env" do
+    @tag setenv: [foo: "bar"]
+    test "get system env value" do
+      assert fetch_os_env("foo") == {:ok, "bar"}
+    end
+
+    @tag setenv: [foo: nil]
+    test "env is unset" do
+      assert fetch_os_env("foo") == :error
+    end
+  end
 end
