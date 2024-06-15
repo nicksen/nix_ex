@@ -20,6 +20,8 @@ defmodule Nix.Ticker do
   @type callable :: task | {module, atom} | {module, atom, [any]}
   @type options :: [unquote(NimbleOptions.option_typespec(@options_schema))]
 
+  @type on_start :: DynamicSupervisor.on_start_child()
+
   ## api
 
   @doc """
@@ -44,7 +46,7 @@ defmodule Nix.Ticker do
       iex> Ticker.start_timer({MyMod, :fun, [node(), self()]})
       {:ok, #PID<0.140.0>}
   """
-  @spec start_timer(callable, keyword) :: Timer.on_start()
+  @spec start_timer(callable, keyword) :: on_start()
   def start_timer(callable, opts \\ []) do
     opts = NimbleOptions.validate!(opts, @options_schema)
     Timer.register_new(callable, opts)

@@ -18,7 +18,7 @@ defmodule Nix.Ticker.Timer do
 
   ## types
 
-  @type on_start :: DynamicSupervisor.on_start_child()
+  @type on_start :: Nix.Ticker.on_start()
 
   ## api
 
