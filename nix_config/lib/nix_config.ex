@@ -53,7 +53,7 @@ defmodule Nix.Config do
   `default` (`nil` by default).
   """
   @spec os_env(String.t(), String.t()) :: String.t()
-  @spec os_env(String.t(), nil) :: String.t() | nil
+  @spec os_env(String.t(), default) :: String.t() | default when default: term
   def os_env(name, default \\ nil) do
     case fetch_os_env(name) do
       {:ok, value} -> value
