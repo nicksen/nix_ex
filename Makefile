@@ -29,6 +29,7 @@ each = $(foreach proj,$(1),$(subst %proj%,$(proj),$(2)))
 each_mix_project = $(call each,$(PROJECTS),$(1))
 each_project = $(call each,pnpm $(PROJECTS),$(1))
 
+mix_projects_subtask = $(call each_mix_project,$(1).%proj%)
 projects_subtask = $(call each_project,$(1).%proj%)
 
 
@@ -64,6 +65,11 @@ fmt: $(call projects_subtask,fmt)
 test: $(call projects_subtask,test)
 
 
+.PHONY: docs
+## docs: generate docs
+docs: $(call mix_projects_subtask,docs)
+
+
 .PHONY: deps
 ## deps: fetch dependencies
 deps: $(call projects_subtask,deps)
@@ -74,21 +80,26 @@ deps.up: $(call projects_subtask,deps.up)
 
 
 .PHONY: clean
-## clean: cleanup build targets
+## clean: clean build targets
 clean: $(call projects_subtask,clean)
 
 .PHONY: deps.clean
-## deps.clean: cleanup dependencies
+## deps.clean: clean dependencies
 deps.clean:
 	@rm -rf ./node_modules $(call each_mix_project,"./%proj%/_build" "./%proj%/deps")
 
+.PHONY: docs.clean
+## docs.clean: clean generated documentation
+docs.clean:
+	@rm -rf $(call each_mix_project,"./%proj%/docs")
+
 .PHONY: cache.clean
-## cache.clean: cleanup cache
+## cache.clean: clean cache
 cache.clean:
 	@rm -rf "$(CACHE_DIR)" $(call each_mix_project,"./%proj%/$(CACHE)")
 
 .PHONY: lsp.clean
-## lsp.clean: cleanup lsp data
+## lsp.clean: clean lsp data
 lsp.clean:
 	@rm -rf "./.elixir_ls" "./.elixir-tools" $(call each_mix_project,"./%proj%/.elixir_ls" "./%proj%/.elixir-tools")
 
@@ -146,6 +157,11 @@ test.pnpm:
 test.%:
 	@pushd "$*"
 	mix test
+
+.PHONY: docs.%
+docs.%:
+	@pushd "$*"
+	mix docs
 
 .PHONY: deps.up.pnpm
 deps.up.pnpm:
