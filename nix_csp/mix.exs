@@ -46,7 +46,7 @@ defmodule Nix.CSP.MixProject do
       {:ex_doc, "~> 0.32", only: :dev, runtime: false},
       {:makeup_eex, ">= 0.0.0", only: :dev, runtime: false},
       {:makeup_js, ">= 0.0.0", only: :dev, runtime: false},
-      {:markdown_formatter, "~> 0.6", only: [:dev, :test], runtime: false},
+      {:markdown_formatter, "~> 1.0", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:recode, "~> 0.7", only: [:dev, :test], runtime: false},
       {:styler, "~> 0.11", only: [:dev, :test], runtime: false}
