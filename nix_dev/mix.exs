@@ -87,8 +87,7 @@ defmodule Nix.Dev.MixProject do
         :unmatched_returns
       ],
       ignore_warnings: ".dialyzer_ignore.exs",
-      list_unused_filters: true,
-      plt_local_path: ".cache/plts"
+      list_unused_filters: true
     ]
   end
 end
