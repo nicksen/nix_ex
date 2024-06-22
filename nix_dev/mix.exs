@@ -25,7 +25,9 @@ defmodule Nix.Dev.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :mix]
+      mod: {Nix.Dev.Application, []},
+      extra_applications: [:logger],
+      env: [default: []]
     ]
   end
 
@@ -87,7 +89,8 @@ defmodule Nix.Dev.MixProject do
         :unmatched_returns
       ],
       ignore_warnings: ".dialyzer_ignore.exs",
-      list_unused_filters: true
+      list_unused_filters: true,
+      plt_add_apps: [:mix]
     ]
   end
 end
