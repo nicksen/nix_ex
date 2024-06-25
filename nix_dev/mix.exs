@@ -39,6 +39,7 @@ defmodule Nix.Dev.MixProject do
   defp deps do
     [
       {:glob_ex, "~> 0.1"},
+      {:nimble_options, "~> 1.1"},
 
       ## testing
       {:stream_data, "~> 1.1", only: [:dev, :test]},
@@ -60,6 +61,16 @@ defmodule Nix.Dev.MixProject do
   # see the documentation for `mix` for more info on aliases
   defp aliases do
     [
+      "lint:check:compile": "compile --force --all-warnings --warnings-as-errors",
+      "lint:check:deps:unused": "deps.unlock --check-unused",
+      "lint:check:deps:audit:hex": "hex.audit",
+      "lint:check:deps:audit:mix": "deps.audit",
+      "lint:check:xref": "xref graph --label compile-connected --fail-above 0",
+      "lint:check:format": "format --check-formatted",
+      "lint:check:recode": "recode --no-autocorrect",
+      "lint:check:credo": "credo suggest",
+      "lint:check:doctor": "doctor --raise --failed --summary",
+      "lint:check:dialyzer": "dialyzer",
       "lint.check": [
         "compile --all-warnings --warnings-as-errors",
         "deps.unlock --check-unused",
