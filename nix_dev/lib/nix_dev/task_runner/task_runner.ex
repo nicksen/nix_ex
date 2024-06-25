@@ -1,79 +1,55 @@
 defmodule Nix.Dev.TaskRunner do
   @moduledoc false
 
-  alias Nix.Dev.TaskRunner.Context
+  alias Nix.Dev.TaskRunner.Config
+  alias Nix.Dev.TaskRunner.Pipeline
   alias Nix.Dev.TaskRunner.Printer
 
-  @doc """
-  Run each command
-  """
-  @spec run_each(Context.t()) :: :ok
-  def run_each(ctx) do
-    {total_duration, all_results} =
-      ctx
-      |> tap(&Printer.info(inspect(&1)))
-      |> run_tasks_timed()
+  ## api
 
-    # commands = Context.commands(ctx)
+  @spec run!([[String.t(), ...]], keyword) :: term
+  def run!(commands, opts) do
+    config = Config.load!(opts)
 
-    # timing_unit = :microsecond
-    # {total_duration, all_results} = :timer.tc(fn -> run_tasks(commands, ctx) end, timing_unit)
-    # start_time = System.monotonic_time()
-    # all_results = run_tasks(commands, config)
-    # total_duration = System.monotonic_time() - start_time
+    tasks =
+      for [task | args] <- commands do
+        config
+        |> Config.pipeline(task)
+        |> Enum.map(&prepare_pending(&1, config))
+      end
 
-    # failed_results = Enum.filter(all_results, &match?({:error, _tool, _opts}, &1))
-
-    # reprint_errors(failed_results)
-    # # print_summary(all_results, total_duration, opts)
-    # maybe_set_exit_status(failed_results)
-
-    print_results(all_results, total_duration, ctx)
+    {finished, broken} = Pipeline.run(tasks, config)
   end
 
   ## priv
 
-  defp run_tasks_timed(ctx) do
-    commands = Context.commands(ctx)
-    Context.timed(ctx, fn -> run_tasks(commands, ctx) end)
+  defp prepare_pending({task, opts}, config) do
+    pipe = Config.pipeline(config, task)
   end
 
-  defp run_tasks(commands, _ctx) do
+  defp run_commands(commands, config) do
     for [task | args] <- commands do
-      Printer.info("run '#{Enum.join([task | args], " ")}'")
-      Mix.Task.run(task, args)
+      name = String.to_atom(task)
+
+      if pipe = config[:tasks][name] do
+        for group <- pipe, command <- group do
+          run_command(command, args)
+        end
+      else
+        run_command(task, args)
+      end
     end
   end
 
-  defp print_results(results, duration, _ctx) do
-    for {:error, {tool, _args, _tool_opts}, {_status, output, _}} <- results do
-      Printer.info([:red, "=> reprinting errors from ", format_tool_name(tool)])
-      Printer.info()
+  defp run_command(command, args) do
+    Printer.info([:faint, :magenta, "=> Running ", format_task_name(command)])
 
-      Printer.info(output)
-      Printer.info()
-    end
+    # Mix.Task.run(command, args)
 
-    Printer.info([:magenta, "=> finished in ", :bright, format_duration(duration)])
-    Printer.info()
+    Mix.shell().cmd(Enum.join(["mix", command | args], " "), env: %{}, stderr_to_stdout: true)
   end
 
-  defp format_duration({duration, unit}) do
-    duration
-    |> System.convert_time_unit(unit, :microsecond)
-    |> then(&Duration.new!(microsecond: {&1, 6}))
-    |> Duration.to_iso8601()
-  end
-
-  defp format_tool_name(name) when is_atom(name) do
-    b(name)
-  end
-
-  defp format_tool_name({name, app}) when is_atom(name) do
-    [b(name), " in ", b(app)]
-  end
-
-  defp b(inner) do
-    [:bright, to_string(inner), :normal]
+  defp format_task_name(name) do
+    [:bright, name, :normal]
   end
 end
