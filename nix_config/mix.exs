@@ -47,7 +47,7 @@ defmodule Nix.Config.MixProject do
       {:markdown_formatter, "~> 1.0", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:recode, "~> 0.7", only: [:dev, :test], runtime: false},
-      {:styler, "~> 0.11", only: [:dev, :test], runtime: false}
+      {:styler, "~> 1.2", only: [:dev, :test], runtime: false}
     ]
   end
 

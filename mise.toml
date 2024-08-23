@@ -1,0 +1,5 @@
+[tools]
+	bun = "1.1"
+	elixir = "1.18"
+	erlang = "27.2"
+	lefthook = "1.10"

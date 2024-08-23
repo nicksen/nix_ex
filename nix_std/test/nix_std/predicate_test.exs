@@ -4,8 +4,6 @@ defmodule Nix.Std.PredicateTest do
   import Nix.Std.FP
   import Nix.Std.Predicate
 
-  @moduletag :f
-
   doctest Nix.Std.Predicate, import: true
 
   describe "and_then" do

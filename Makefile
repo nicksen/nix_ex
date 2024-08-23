@@ -25,18 +25,11 @@ PROJECTS += nix_ticker
 # functions
 
 each = $(foreach proj,$(1),$(subst %proj%,$(proj),$(2)))
-
-each_mix_project = $(call each,$(PROJECTS),$(1))
-each_project = $(call each,pnpm $(PROJECTS),$(1))
-
-mix_projects_subtask = $(call each_mix_project,$(1).%proj%)
+each_project = $(call each,$(PROJECTS),$(1))
 projects_subtask = $(call each_project,$(1).%proj%)
 
 
 # targets
-
-# .PHONY: def
-# def: ; @echo $(call projects_subtask,build)
 
 .PHONY: all
 all: help
@@ -53,30 +46,30 @@ install: $(call projects_subtask,install)
 
 .PHONY: lint
 ## lint: run linters
-lint: $(call projects_subtask,lint)
+lint: lint.prettier $(call projects_subtask,lint)
 
 .PHONY: fmt
 ## fmt: run formatters
-fmt: $(call projects_subtask,fmt)
+fmt: fmt.prettier $(call projects_subtask,fmt)
 
 
 .PHONY: test
 ## test: run tests
-test: $(call projects_subtask,test)
+test: test.node $(call projects_subtask,test)
 
 
 .PHONY: docs
 ## docs: generate docs
-docs: $(call mix_projects_subtask,docs)
+docs: $(call projects_subtask,docs)
 
 
 .PHONY: deps
 ## deps: fetch dependencies
-deps: $(call projects_subtask,deps)
+deps: deps.node $(call projects_subtask,deps)
 
 .PHONY: deps.up
 ## deps.up: update dependencies
-deps.up: $(call projects_subtask,deps.up)
+deps.up: deps.up.node $(call projects_subtask,deps.up)
 
 
 .PHONY: clean
@@ -86,40 +79,36 @@ clean: $(call projects_subtask,clean)
 .PHONY: deps.clean
 ## deps.clean: clean dependencies
 deps.clean:
-	@rm -rf ./node_modules $(call each_mix_project,"./%proj%/_build" "./%proj%/deps")
+	@rm -rf ./node_modules $(call each_project,"./%proj%/_build" "./%proj%/deps")
 
 .PHONY: docs.clean
 ## docs.clean: clean generated documentation
 docs.clean:
-	@rm -rf $(call each_mix_project,"./%proj%/docs")
+	@rm -rf $(call each_project,"./%proj%/doc" "./%proj%/cover")
 
 .PHONY: cache.clean
 ## cache.clean: clean cache
 cache.clean:
-	@rm -rf "$(CACHE_DIR)" $(call each_mix_project,"./%proj%/$(CACHE)")
+	@rm -rf "$(CACHE_DIR)" $(call each_project,"./%proj%/$(CACHE)")
 
 .PHONY: lsp.clean
 ## lsp.clean: clean lsp data
 lsp.clean:
-	@rm -rf "./.elixir_ls" "./.elixir-tools" "./.lexical" $(call each_mix_project,"./%proj%/.elixir_ls" "./%proj%/.elixir-tools" "./%proj%/.lexical")
+	@rm -rf "./.elixir_ls" "./.elixir-tools" "./.lexical" $(call each_project,"./%proj%/.elixir_ls" "./%proj%/.elixir-tools" "./%proj%/.lexical")
 
 
 .PHONY: help
 help:
 	@printf "Usage:\n"
-	sed -n "s/^## \+\(.*\): *\(.*\)/$$(tput setaf 3)\1$$(tput sgr0):\2/p" $(MAKEFILE_LIST) \
+	@sed -n "s/^## \+\(.*\): *\(.*\)/$$(tput setaf 3)\1$$(tput sgr0):\2/p" $(MAKEFILE_LIST) \
 		| column -t -s ":" \
 		| sed -e "s/^/  /"
 
 
-.PHONY: build.pnpm
-build.pnpm:
-	@pnpm run dist
-
 .PHONY: build.%
 build.%:
 	@pushd "$*"
-	mix compile
+	@mix compile
 
 .PHONY: install.nix_dev
 install.nix_dev:
@@ -130,27 +119,27 @@ install.nix_dev:
 install.%:
 	@# noop
 
-.PHONY: lint.pnpm
-lint.pnpm:
-	@pnpm run lint:check
+.PHONY: lint.prettier
+lint.prettier:
+	@bunx prettier --ignore-unknown -c .
 
 .PHONY: lint.%
 lint.%:
 	@pushd "$*"
-	mix lint.check
+	@mix lint.check
 
-.PHONY: fmt.pnpm
-fmt.pnpm:
-	@pnpm run lint:fmt
+.PHONY: fmt.prettier
+fmt.prettier:
+	@bunx prettier --ignore-unknown -w .
 
 .PHONY: fmt.%
 fmt.%:
 	@pushd "$*"
-	mix lint.fmt
+	@mix lint.fmt
 
-.PHONY: test.pnpm
-test.pnpm:
-	@pnpm test
+.PHONY: test.node
+test.node:
+	@bun test
 
 .PHONY: test.%
 test.%:
@@ -160,31 +149,28 @@ test.%:
 .PHONY: docs.%
 docs.%:
 	@pushd "$*"
-	mix docs
+	@mix docs
 
-.PHONY: deps.up.pnpm
-deps.up.pnpm:
-	@pnpm update -L
+.PHONY: deps.up.node
+deps.up.node:
+	@bun update --latest
+	@bun install
 
 .PHONY: deps.up.%
 deps.up.%:
 	@pushd "$*"
-	mix deps.update --all
+	@mix deps.update --all
 
-.PHONY: deps.pnpm
-deps.pnpm:
-	@pnpm install --frozen
+.PHONY: deps.node
+deps.node:
+	@bun install
 
 .PHONY: deps.%
 deps.%:
 	@pushd "$*"
-	mix deps.get
-
-.PHONY: clean.pnpm
-clean.pnpm:
-	@pnpm run clean
+	@mix deps.get
 
 .PHONY: clean.%
 clean.%:
 	@pushd "$*"
-	mix clean
+	@mix clean

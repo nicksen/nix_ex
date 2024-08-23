@@ -3,6 +3,8 @@ defmodule Nix.ConfigCase do
 
   use ExUnit.CaseTemplate
 
+  alias Nix.Std.Lazy
+
   using do
     quote do
       import unquote(__MODULE__)
@@ -28,23 +30,30 @@ defmodule Nix.ConfigCase do
     end
 
     if tags[:setenv] do
-      reset =
-        for {key, val} <- tags[:setenv] do
-          env = to_string(key)
-          curval = System.get_env(env)
+      :ok =
+        tags[:setenv]
+        |> readenv()
+        |> Lazy.bind(&setenv/1)
+        |> on_exit()
 
-          if val != nil do
-            System.put_env(env, val)
-          else
-            System.delete_env(env)
-          end
-
-          {env, curval}
-        end
-
-      on_exit(fn -> System.put_env(reset) end)
+      :ok = setenv(tags[:setenv])
     end
 
     :ok
+  end
+
+  defp setenv(enum), do: System.put_env(enum)
+
+  defp readenv(enum) do
+    full_env = System.get_env()
+
+    for {key, _val} <- enum do
+      name = to_string(key)
+
+      case Map.fetch(full_env, name) do
+        {:ok, cur} -> {key, cur}
+        :error -> {key, nil}
+      end
+    end
   end
 end

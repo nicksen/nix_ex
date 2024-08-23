@@ -205,7 +205,7 @@ defmodule Nix.CSP do
   end
 
   def on_mount(:default, _params, _session, socket) do
-    unless Process.get(:plug_csp_nonce) do
+    if !Process.get(:plug_csp_nonce) do
       Logger.debug("""
       LiveView session is misconfigured.
 
