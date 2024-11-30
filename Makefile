@@ -101,8 +101,7 @@ cache.clean:
 .PHONY: lsp.clean
 ## lsp.clean: clean lsp data
 lsp.clean:
-	@rm -rf "./.elixir_ls" "./.elixir-tools" $(call each_mix_project,"./%proj%/.elixir_ls" "./%proj%/.elixir-tools")
-
+	@rm -rf "./.elixir_ls" "./.elixir-tools" "./.lexical" $(call each_mix_project,"./%proj%/.elixir_ls" "./%proj%/.elixir-tools" "./%proj%/.lexical")
 
 
 .PHONY: help
