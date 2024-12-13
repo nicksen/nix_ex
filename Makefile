@@ -155,7 +155,7 @@ test.pnpm:
 .PHONY: test.%
 test.%:
 	@pushd "$*"
-	mix test
+	@mix test --warnings-as-errors
 
 .PHONY: docs.%
 docs.%:
