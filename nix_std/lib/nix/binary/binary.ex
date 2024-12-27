@@ -19,8 +19,6 @@ defmodule Nix.Binary do
 
   ## types
 
-  @type t :: binary
-
   @typedoc """
   Represents a part (or range) of a binary. `start` is a zero-based offset into a `t:binary/0`
   and `length` is the length of that part.
@@ -37,7 +35,7 @@ defmodule Nix.Binary do
   @doc """
   Concatenates two binaries.
 
-  Handy for piping. With binary args it's the same as `Kernel.<>/2`.
+  Handy for piping. With binary args it's the same as `<>/2`.
 
   ## Examples
 
@@ -50,7 +48,7 @@ defmodule Nix.Binary do
       iex> append(<<>>, 0)
       <<0>>
   """
-  @spec append(left, right) :: t when left: t, right: t | byte
+  @spec append(left, right) :: binary when left: binary, right: binary | byte
   def append(left, right)
 
   def append(bin, suffix) when is_binary(bin) and is_binary(suffix) do
@@ -89,7 +87,7 @@ defmodule Nix.Binary do
       iex> at(<<1, 2, 3>>, -4)
       nil
   """
-  @spec at(subject, pos) :: byte | nil when subject: t, pos: integer
+  @spec at(subject, pos) :: byte | nil when subject: binary, pos: integer
   def at(subject, pos)
 
   def at(bin, index) when is_binary(bin) and is_integer(index) and index >= 0 and index < byte_size(bin) do
@@ -107,7 +105,7 @@ defmodule Nix.Binary do
   @doc """
   Same as [`copy(subject, 1)`](`copy/2`).
   """
-  @spec copy(subject) :: t when subject: t
+  @spec copy(subject) :: binary when subject: binary
   def copy(subject)
 
   def copy(bin) do
@@ -142,7 +140,7 @@ defmodule Nix.Binary do
       iex> copy(<<1>>, 0)
       <<>>
   """
-  @spec copy(subject, n) :: t when subject: t, n: non_neg_integer
+  @spec copy(subject, n) :: binary when subject: binary, n: non_neg_integer
   def copy(subject, n)
 
   def copy(bin, num) when is_binary(bin) and is_integer(num) do
@@ -166,7 +164,7 @@ defmodule Nix.Binary do
       iex> drop(<<1, 2>>, 10)
       <<>>
   """
-  @spec drop(subject, n) :: t when subject: t, n: integer
+  @spec drop(subject, n) :: binary when subject: binary, n: integer
   def drop(subject, n)
 
   def drop(bin, num) when is_binary(bin) and is_integer(num) and num < 0 do
@@ -264,7 +262,7 @@ defmodule Nix.Binary do
       iex> from_list([])
       <<>>
   """
-  @spec from_list(byte_list) :: t when byte_list: iolist
+  @spec from_list(byte_list) :: binary when byte_list: [byte]
   def from_list(list) when is_list(list) do
     :binary.list_to_bin(list)
   end
@@ -428,7 +426,7 @@ defmodule Nix.Binary do
   end
 
   def part(bin, idx, len) when is_binary(bin) and is_integer(idx) and is_integer(len) do
-    Kernel.binary_part(bin, idx, len)
+    binary_part(bin, idx, len)
   end
 
   @doc """
@@ -566,7 +564,7 @@ defmodule Nix.Binary do
   end
 
   def split_at(bin, index) when is_binary(bin) and is_integer(index) do
-    {Kernel.binary_part(bin, 0, index), Kernel.binary_part(bin, index, byte_size(bin) - index)}
+    {binary_part(bin, 0, index), binary_part(bin, index, byte_size(bin) - index)}
   end
 
   @doc """
@@ -645,7 +643,7 @@ defmodule Nix.Binary do
       iex> to_list(<<>>)
       []
   """
-  @spec to_list(subject) :: [byte] when subject: t
+  @spec to_list(subject) :: [byte] when subject: binary
   def to_list(bin) when is_binary(bin) do
     :binary.bin_to_list(bin)
   end
