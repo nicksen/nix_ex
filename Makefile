@@ -155,9 +155,10 @@ test.node:
 	@bun test
 
 .PHONY: test.%
+test.%: ARGS ?=
 test.%:
 	@pushd "$*"
-	@mix test --warnings-as-errors
+	@mix test --warnings-as-errors $(ARGS)
 
 .PHONY: docs.%
 docs.%:
