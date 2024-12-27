@@ -390,11 +390,12 @@ defmodule Nix.Binary do
   end
 
   @doc """
-  Extracts part of the `bin` starting at `index` with the given `length`
+  Extracts the part of binary `subject` starting at the offset `pos` and of the given `length`.
 
-  * also accepts negative `index`, interpreting it as relative to the end of `bin`
-  * `length` is allowed to be outside the size of `bin` i.e. it is the max number of bytes
-    returned
+  A negative `pos` can be used to start extracting bytes relative the end of a binary. A negative
+  `length` can be used to extract bytes at the end of a binary.
+
+  If `length` references outside the binary, it will clip to the binary size.
 
   ## Examples
 
@@ -410,8 +411,8 @@ defmodule Nix.Binary do
       iex> part(<<1, 2, 3, 4, 5>>, -1, 10)
       <<5>>
   """
-  @spec part(binary, integer, non_neg_integer) :: binary
-  def part(bin, index, length)
+  @spec part(subject, pos, length) :: binary when subject: binary, pos: integer, length: integer
+  def part(subject, pos, length)
 
   def part(bin, idx, len) when is_binary(bin) and is_integer(idx) and is_integer(len) and idx < 0 do
     part(bin, byte_size(bin) + idx, len)
@@ -568,10 +569,10 @@ defmodule Nix.Binary do
   end
 
   @doc """
-  Takes the first `num` bytes from `bin`
+  Creates a binary from the first `n` bytes out of `subject`.
 
-  When a negative `num` is given, the last `num` bytes from `bin` is returned. If `num` is greater
-  than the size of `bin` the full `bin` is returned.
+  A negative `n` can be used to extract bytes at the end of `subject`. If `n` >
+  [`byte_size(subject)`](`byte_size/1`), it will return the full binary.
 
   ## Examples
 
@@ -584,8 +585,8 @@ defmodule Nix.Binary do
       iex> take(<<1, 2, 3>>, -2)
       <<2, 3>>
   """
-  @spec take(binary, integer) :: binary
-  def take(bin, num)
+  @spec take(subject, n) :: binary when subject: binary, n: integer
+  def take(subject, n)
 
   def take(bin, num) when is_binary(bin) and is_integer(num) and num < 0 do
     bin

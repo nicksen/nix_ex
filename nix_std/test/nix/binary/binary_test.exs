@@ -99,15 +99,17 @@ defmodule Nix.BinaryTest do
     end
 
     test "part" do
-      x = <<1, 2, 3, 4, 5>>
-      assert Binary.part(x, 1, 2) == <<2, 3>>
-      assert Binary.part(x, -2, 1) == <<4>>
-      assert Binary.part(x, -2, -1) == <<3>>
-      assert Binary.part(x, -2, -3) == <<1, 2, 3>>
-      assert Binary.part(x, 3, 10) == <<4, 5>>
-      assert Binary.part(x, 3, -2) == <<2, 3>>
-      assert Binary.part(x, 3, -3) == <<1, 2, 3>>
-      assert Binary.part(x, 3, -4) == <<1, 2, 3>>
+      assert Binary.part(<<1, 2, 3, 4, 5>>, 1, 2) == <<2, 3>>
+      assert Binary.part(<<1, 2, 3, 4, 5>>, 2, -1) == <<2>>
+
+      assert Binary.part(<<1, 2, 3, 4, 5>>, -3, 2) == <<3, 4>>
+      assert Binary.part(<<1, 2, 3, 4, 5>>, -3, -2) == <<1, 2>>
+
+      assert Binary.part(<<1, 2, 3, 4, 5>>, 2, 15) == <<3, 4, 5>>
+      assert Binary.part(<<1, 2, 3, 4, 5>>, -4, 15) == <<2, 3, 4, 5>>
+
+      assert Binary.part(<<1, 2, 3, 4, 5>>, 2, -15) == <<1, 2>>
+      assert Binary.part(<<1, 2, 3, 4, 5>>, -2, -15) == <<1, 2, 3>>
     end
 
     test "prepend" do
@@ -149,8 +151,6 @@ defmodule Nix.BinaryTest do
     end
 
     test "take" do
-      assert Binary.take(<<>>, 1) == <<>>
-      assert Binary.take(<<1>>, 0) == <<>>
       assert Binary.take(<<1, 2, 3, 4>>, 1) == <<1>>
       assert Binary.take(<<1, 2, 3, 4>>, 2) == <<1, 2>>
       assert Binary.take(<<1, 2, 3, 4>>, 5) == <<1, 2, 3, 4>>
@@ -158,6 +158,9 @@ defmodule Nix.BinaryTest do
       assert Binary.take(<<1, 2, 3, 4>>, -3) == <<2, 3, 4>>
       assert Binary.take(<<1, 2, 3, 4>>, -13) == <<1, 2, 3, 4>>
       assert Binary.take("Dave Brubeck", 5) == "Dave "
+
+      assert Binary.take(<<>>, 1) == <<>>
+      assert Binary.take(<<1>>, 0) == <<>>
     end
 
     test "to_hex" do
