@@ -38,6 +38,9 @@ defmodule Nix.Config.MixProject do
     [
       {:nix_std, path: "../nix_std"},
 
+      ## testing
+      {:stream_data, "~> 1.1", only: [:dev, :test]},
+
       ## dev
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:credo_contrib, "~> 0.2", only: [:dev, :test], runtime: false},

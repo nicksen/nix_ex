@@ -40,6 +40,9 @@ defmodule Nix.Dev.MixProject do
     [
       {:glob_ex, "~> 0.1"},
 
+      ## testing
+      {:stream_data, "~> 1.1", only: [:dev, :test]},
+
       ## dev
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:credo_contrib, "~> 0.2", only: [:dev, :test], runtime: false},

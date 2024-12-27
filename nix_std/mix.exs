@@ -36,6 +36,9 @@ defmodule Nix.Std.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      ## testing
+      {:stream_data, "~> 1.1", only: [:dev, :test]},
+
       ## dev
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:credo_contrib, "~> 0.2", only: [:dev, :test], runtime: false},
