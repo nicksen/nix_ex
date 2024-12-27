@@ -14,12 +14,17 @@ CWD ?= .
 CACHE := .cache
 CACHE_DIR ?= $(CWD)/$(CACHE)
 
-PROJECTS := nix_std
+PROJECTS :=
+ifdef PROJ
+PROJECTS += $(PROJ)
+else
+PROJECTS += nix_std
 PROJECTS += nix_dev
 PROJECTS += nix_test
 PROJECTS += nix_config
 PROJECTS += nix_csp
 PROJECTS += nix_ticker
+endif
 
 
 # functions
@@ -46,7 +51,11 @@ install: $(call projects_subtask,install)
 
 .PHONY: lint
 ## lint: run linters
+ifdef PROJ
+lint: $(call projects_subtask,lint)
+else
 lint: lint.prettier $(call projects_subtask,lint)
+endif
 
 .PHONY: fmt
 ## fmt: run formatters
@@ -55,7 +64,11 @@ fmt: fmt.prettier $(call projects_subtask,fmt)
 
 .PHONY: test
 ## test: run tests
+ifdef PROJ
+test: $(call projects_subtask,test)
+else
 test: test.node $(call projects_subtask,test)
+endif
 
 
 .PHONY: docs
