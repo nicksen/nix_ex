@@ -16,6 +16,9 @@ defmodule Nix.Std.MixProject do
         main: "readme",
         api_reference: false,
         extras: ["README.md"],
+        groups_for_docs: [
+          Guards: &(&1[:guard] == true)
+        ],
         formatters: ["html"]
       ],
       dialyzer: dialyzer()

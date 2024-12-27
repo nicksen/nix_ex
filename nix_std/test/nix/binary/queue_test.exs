@@ -9,14 +9,14 @@ defmodule Nix.Binary.QueueTest do
     test "create" do
       queue = Binary.Queue.new()
       assert Binary.Queue.size(queue) == 0
-      assert Binary.Queue.is_empty(queue)
+      assert Binary.Queue.empty?(queue)
     end
 
     test "push a binary chunk" do
       q = Binary.Queue.push(Binary.Queue.new(), <<0, 1, 2, 3, 4, 5, 6, 7, 8, 9>>)
 
       assert Binary.Queue.size(q) == 10
-      assert Binary.Queue.is_empty(q) == false
+      assert Binary.Queue.empty?(q) == false
     end
 
     test "push two binary chunks" do
@@ -26,7 +26,7 @@ defmodule Nix.Binary.QueueTest do
         |> Binary.Queue.push(<<10, 11, 12, 13, 14>>)
 
       assert Binary.Queue.size(q) == 15
-      assert Binary.Queue.is_empty(q) == false
+      assert Binary.Queue.empty?(q) == false
     end
 
     test "pull shorter than first element length" do
@@ -50,7 +50,7 @@ defmodule Nix.Binary.QueueTest do
 
       {data, q2} = Binary.Queue.pull(q, 15)
       assert Binary.Queue.size(q2) == 0
-      assert Binary.Queue.is_empty(q2) == true
+      assert Binary.Queue.empty?(q2) == true
       assert data == <<0, 1, 2, 3, 4, 5, 6, 7, 8, 9>>
     end
 
@@ -62,7 +62,7 @@ defmodule Nix.Binary.QueueTest do
 
       {data, q2} = Binary.Queue.pull(q, 12)
       assert Binary.Queue.size(q2) == 3
-      assert Binary.Queue.is_empty(q2) == false
+      assert Binary.Queue.empty?(q2) == false
       assert data == <<0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11>>
     end
 
@@ -103,7 +103,7 @@ defmodule Nix.Binary.QueueTest do
       {rest_6, q_66} = Binary.Queue.pull(q_60, 10)
       assert byte_size(rest_6) == 6
       assert Binary.Queue.size(q_66) == 0
-      assert Binary.Queue.is_empty(q_66)
+      assert Binary.Queue.empty?(q_66)
     end
   end
 end
