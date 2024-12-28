@@ -147,7 +147,7 @@ defmodule Nix.Binary do
   @spec copy(subject, n) :: binary when subject: binary, n: non_neg_integer
   def copy(subject, n)
 
-  def copy(bin, num) when is_binary(bin) and is_integer(num) do
+  def copy(bin, num) when is_binary(bin) and is_integer(num) and num >= 0 do
     :binary.copy(bin, num)
   end
 
@@ -172,16 +172,30 @@ defmodule Nix.Binary do
   def drop(subject, n)
 
   def drop(bin, num) when is_binary(bin) and is_integer(num) and num < 0 do
-    bin
-    |> split_at(num)
-    |> elem(0)
+    size = -byte_size(bin)
+    pos = max(num, size)
+
+    part(bin, pos, size - pos)
   end
 
   def drop(bin, num) when is_binary(bin) and is_integer(num) do
-    bin
-    |> split_at(num)
-    |> elem(1)
+    size = byte_size(bin)
+    pos = min(num, size)
+
+    part(bin, pos, size - pos)
   end
+
+  # def drop(bin, num) when is_binary(bin) and is_integer(num) and num < 0 do
+  #   bin
+  #   |> split_at(num)
+  #   |> elem(0)
+  # end
+
+  # def drop(bin, num) when is_binary(bin) and is_integer(num) do
+  #   bin
+  #   |> split_at(num)
+  #   |> elem(1)
+  # end
 
   @doc """
   Returns the first byte of binary `subject` as an integer. If the size of `subject` is zero, it
@@ -400,7 +414,8 @@ defmodule Nix.Binary do
   end
 
   def pad_leading(bin, len, byte) when is_binary(bin) and is_integer(len) and is_byte(byte) and len > 0 do
-    copy(<<byte>>, len - byte_size(bin)) <> bin
+    filler = copy(<<byte>>, len - byte_size(bin))
+    prepend(bin, filler)
   end
 
   @doc """
@@ -429,7 +444,8 @@ defmodule Nix.Binary do
   end
 
   def pad_trailing(bin, len, byte) when is_binary(bin) and is_integer(len) and is_byte(byte) and len > 0 do
-    bin <> copy(<<byte>>, len - byte_size(bin))
+    filler = copy(<<byte>>, len - byte_size(bin))
+    append(bin, filler)
   end
 
   @doc """
@@ -670,7 +686,11 @@ defmodule Nix.Binary do
   end
 
   def split_at(bin, idx) when is_binary(bin) and is_integer(idx) do
-    {part(bin, 0, idx), part(bin, idx, byte_size(bin))}
+    # {part(bin, 0, idx), part(bin, idx, byte_size(bin))}
+    # {binary_part(bin, 0, idx), binary_part(bin, idx, byte_size(bin) - idx)}
+    # :erlang.split_binary(bin, idx)
+    <<left::binary-size(idx), right::binary>> = bin
+    {left, right}
   end
 
   @doc """

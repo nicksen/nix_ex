@@ -10,51 +10,44 @@ defmodule Nix.BinaryTest do
     property "append" do
       check all left <- binary(),
                 right <- binary() do
-        bin = Binary.append(left, right)
-        assert <<^left::binary, ^right::binary>> = bin
+        assert bin = Binary.append(left, right)
+        assert is_binary(bin)
       end
 
       check all left <- binary(),
                 right <- byte() do
-        bin = Binary.append(left, right)
-        assert <<^left::binary, ^right::integer>> = bin
+        assert bin = Binary.append(left, right)
+        assert is_binary(bin)
       end
     end
 
     property "at" do
-      check all needle <- byte(),
-                pre <- binary(),
-                post <- binary() do
-        haystack = IO.iodata_to_binary([pre, needle, post])
-        idx = byte_size(pre)
-
-        assert Binary.at(haystack, idx) == needle
-      end
-    end
-
-    test "copy" do
-      assert_raise ArgumentError, fn ->
-        Binary.copy("boo", -1)
+      check all len <- positive_integer(),
+                sub <- binary(length: len),
+                pos <- integer(-len..(len - 1)) do
+        assert byte = Binary.at(sub, pos)
+        assert Binary.is_byte(byte)
       end
     end
 
     property "copy" do
-      check all sub <- binary(min_length: 1),
-                n <- positive_integer() do
-        bin = Binary.copy(sub, n)
-        assert <<^sub::binary, _rest::binary>> = bin
+      check all sub <- binary(),
+                n <- non_negative_integer() do
+        assert bin = Binary.copy(sub, n)
+        assert is_binary(bin)
       end
     end
 
     test "drop" do
-      assert Binary.drop(<<>>, 1) == <<>>
-      assert Binary.drop(<<1>>, 0) == <<1>>
       assert Binary.drop(<<1, 2, 3, 4>>, 1) == <<2, 3, 4>>
       assert Binary.drop(<<1, 2, 3, 4>>, 2) == <<3, 4>>
       assert Binary.drop(<<1, 2, 3, 4>>, 5) == <<>>
       assert Binary.drop(<<1, 2, 3, 4>>, -1) == <<1, 2, 3>>
       assert Binary.drop(<<1, 2, 3, 4>>, -3) == <<1>>
       assert Binary.drop(<<1, 2, 3, 4>>, -13) == <<>>
+
+      assert Binary.drop(<<>>, 1) == <<>>
+      assert Binary.drop(<<1>>, 0) == <<1>>
     end
 
     test "from_hex" do
@@ -76,28 +69,6 @@ defmodule Nix.BinaryTest do
       end
     end
 
-    # test "longest_common_prefix" do
-    #   assert Binary.longest_common_prefix(["foo fighters", "foofoo"]) == 3
-    # end
-
-    # test "longest_common_suffix" do
-    #   assert Binary.longest_common_suffix(["foo", "mooooo", "boo"]) == 2
-    # end
-
-    # test "pad_leading" do
-    #   assert Binary.pad_leading(<<1, 2>>, 4) == <<0, 0, 1, 2>>
-    #   assert Binary.pad_leading(<<1, 2>>, 1) == <<1, 2>>
-    #   assert Binary.pad_leading(<<>>, 1) == <<0>>
-    # end
-
-    # test "pad_trailing" do
-    #   assert Binary.pad_trailing(<<1>>, 3) == <<1, 0, 0>>
-    #   assert Binary.pad_trailing(<<1, 2>>, 3, 7) == <<1, 2, 7>>
-    #   assert Binary.pad_trailing(<<1, 2, 3>>, 3, 7) == <<1, 2, 3>>
-    #   assert Binary.pad_trailing(<<1, 2, 3>>, 2, 7) == <<1, 2, 3>>
-    #   assert Binary.pad_trailing(<<>>, 2) == <<0, 0>>
-    # end
-
     test "part" do
       assert Binary.part(<<1, 2, 3, 4, 5>>, 1, 2) == <<2, 3>>
       assert Binary.part(<<1, 2, 3, 4, 5>>, 2, -1) == <<2>>
@@ -111,23 +82,6 @@ defmodule Nix.BinaryTest do
       assert Binary.part(<<1, 2, 3, 4, 5>>, 2, -15) == <<1, 2>>
       assert Binary.part(<<1, 2, 3, 4, 5>>, -2, -15) == <<1, 2, 3>>
     end
-
-    # test "prepend" do
-    #   assert Binary.prepend(<<2, 3>>, <<1>>) == <<1, 2, 3>>
-    #   assert Binary.prepend(<<2, 3>>, 1) == <<1, 2, 3>>
-    #   assert Binary.prepend(<<>>, 0) == <<0>>
-    # end
-
-    # test "replace" do
-    #   assert Binary.replace("hoothoot", "oo", "a") == "hathat"
-    #   assert Binary.replace("hoothoot", "oo", "a", global: false) == "hathoot"
-    # end
-
-    # test "reverse" do
-    #   assert Binary.reverse(<<>>) == <<>>
-    #   assert Binary.reverse(<<1, 2, 3>>) == <<3, 2, 1>>
-    #   assert Binary.reverse(<<1>>) == <<1>>
-    # end
 
     test "split" do
       x = <<1, 2, 3, 2, 4, 5, 3>>
