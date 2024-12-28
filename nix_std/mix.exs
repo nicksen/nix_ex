@@ -17,6 +17,7 @@ defmodule Nix.Std.MixProject do
         api_reference: false,
         extras: ["README.md"],
         groups_for_docs: [
+          Types: &(&1[:kind] == :type),
           Guards: &(&1[:guard] == true)
         ],
         formatters: ["html"]

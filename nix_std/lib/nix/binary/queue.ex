@@ -1,6 +1,32 @@
 defmodule Nix.Binary.Queue do
   @moduledoc """
+  Queue for binary data.
+
+  It resembles a pipeline: data is pushed on one end and pulled from the other. The order by
+  which bytes are pushed in is the same by which they are pulled out.
+
+  Internally, this queue implementation optimizes on the amount of copying of binary data in
+  memory. Copying possibly occurs when binary data is pulled from the queue.
+
+  ## Examples
+
+      iex> new(<<5, 208, 224, 23, 85>>)
+      #Nix.Binary.Queue<[<<5, 208, 224, 23, 85>>]>
+
+      iex> q = new()
+      ...> q = push(q, <<5, 208, 224, 23, 85>>)
+      ...> {data, q} = pull(q, 4)
+      iex> data
+      <<5, 208, 224, 23>>
+      iex> q
+      #Nix.Binary.Queue<[<<85>>]>
+
+      iex> new()
+      ...> |> push(<<5, 208, 224, 23, 85>>)
+      ...> |> push(<<82, 203>>)
+      #Nix.Binary.Queue<[<<5, 208, 224, 23, 85>>, <<82, 203>>]>
   """
+
   alias Nix.Binary
 
   ## struct
@@ -10,42 +36,48 @@ defmodule Nix.Binary.Queue do
 
   ## types
 
-  @opaque t :: %__MODULE__{data: :queue.queue(binary)}
+  @opaque t :: %__MODULE__{}
 
   ## api
 
   @doc """
-  Creates a new empty binary queue
+  Creates a new empty binary queue.
 
   ## Examples
 
       iex> new()
-      %Nix.Binary.Queue{data: {[], []}, size: 0}
+      #Nix.Binary.Queue<[]>
   """
   @spec new() :: t
   def new do
-    %__MODULE__{data: :queue.new(), size: 0}
+    new([])
   end
 
   @doc """
-  Creates a new binary queue from an enumerable or binary
+  Creates a new binary queue from initial `data`.
 
   ## Examples
 
       iex> new(<<10, 11>>)
-      %Nix.Binary.Queue{data: {[<<10, 11>>], []}, size: 2}
+      #Nix.Binary.Queue<[<<10, 11>>]>
 
-      iex> new(["a", "b"])
-      %Nix.Binary.Queue{data: {["b"], ["a"]}, size: 2}
+      iex> new(["a", "bc"])
+      #Nix.Binary.Queue<[<<97>>, <<98, 99>>]>
+
+      iex> q = new(["a", "b", "c"])
+      #Nix.Binary.Queue<[<<97>>, <<98>>, <<99>>]>
+      iex> new(q)
+      #Nix.Binary.Queue<[<<97>>, <<98>>, <<99>>]>
   """
-  @spec new(binary | Enumerable.t()) :: t
-
-  def new(data) when is_binary(data) do
-    %__MODULE__{data: :queue.from_list([data]), size: byte_size(data)}
-  end
+  @spec new(data) :: t when data: binary | Enumerable.t()
+  def new(data)
 
   def new(%__MODULE__{} = queue) do
     queue
+  end
+
+  def new(data) when is_binary(data) do
+    new([data])
   end
 
   def new(enum) do
@@ -58,107 +90,119 @@ defmodule Nix.Binary.Queue do
   end
 
   @doc """
-  Push binary data on the queue and returns a new queue
+  Push binary `data` on the `queue` and returns a new queue.
 
   ## Examples
 
       iex> push(new(), <<23, 75>>)
-      %Nix.Binary.Queue{data: {[<<23, 75>>], []}, size: 2}
+      #Nix.Binary.Queue<[<<23, 75>>]>
 
       iex> push(new(<<23, 75>>), <<17>>)
-      %Nix.Binary.Queue{data: {[<<17>>], [<<23, 75>>]}, size: 3}
+      #Nix.Binary.Queue<[<<23, 75>>, <<17>>]>
   """
-  @spec push(t, binary) :: t
+  @spec push(queue, data) :: t when queue: t, data: binary
   def push(%__MODULE__{data: queue, size: size}, data) do
     %__MODULE__{data: :queue.in(data, queue), size: size + byte_size(data)}
   end
 
   @doc """
-  Pulls a single byte from the queue. Returns a tuple of the byte and the new queue
+  Pulls a single byte from the `queue`. Returns a tuple of the byte and the new queue.
 
   ## Examples
 
       iex> q = new(<<23, 75>>)
-      %Nix.Binary.Queue{data: {[<<23, 75>>], []}, size: 2}
-      ...> pull(q)
-      {<<23>>, %Nix.Binary.Queue{data: {[], [<<75>>]}, size: 1}}
+      #Nix.Binary.Queue<[<<23, 75>>]>
+      iex> {data, q} = pull(q)
+      iex> data
+      <<23>>
+      iex> q
+      #Nix.Binary.Queue<[<<75>>]>
   """
-  @spec pull(t) :: {binary, t}
+  @spec pull(queue) :: {binary, t} when queue: t
   def pull(%__MODULE__{} = queue) do
     pull(queue, 1)
   end
 
   @doc """
-  Pull `num` bytes from the `queue`. Returns a tuple of the bytes pulled and a new queue
+  Pull `num` bytes from the `queue`. Returns a tuple of the bytes pulled and a new queue.
 
   ## Examples
 
       iex> q = new(<<23, 75, 17>>)
-      %Nix.Binary.Queue{data: {[<<23, 75, 17>>], []}, size: 3}
-      ...> pull(q, 2)
-      {<<23, 75>>, %Nix.Binary.Queue{data: {[], [<<17>>]}, size: 1}}
+      #Nix.Binary.Queue<[<<23, 75, 17>>]>
+      iex> p = pull(q, 2)
+      iex> elem(p, 0)
+      <<23, 75>>
+      iex> elem(p, 1)
+      #Nix.Binary.Queue<[<<17>>]>
 
       iex> q = new(<<23>>)
-      %Nix.Binary.Queue{data: {[<<23>>], []}, size: 1}
-      ...> q = push(q, <<75, 17>>)
-      %Nix.Binary.Queue{data: {[<<75, 17>>], [<<23>>]}, size: 3}
-      ...> pull(q, 2)
-      {<<23, 75>>, %Nix.Binary.Queue{data: {[], [<<17>>]}, size: 1}}
+      #Nix.Binary.Queue<[<<23>>]>
+      iex> q = push(q, <<75, 17>>)
+      #Nix.Binary.Queue<[<<23>>, <<75, 17>>]>
+      iex> p = pull(q, 2)
+      iex> elem(p, 0)
+      <<23, 75>>
+      iex> elem(p, 1)
+      #Nix.Binary.Queue<[<<17>>]>
 
       iex> q = new(<<23, 75, 17>>)
-      %Nix.Binary.Queue{data: {[<<23, 75, 17>>], []}, size: 3}
-      ...> pull(q, 10)
-      {<<23, 75, 17>>, %Nix.Binary.Queue{data: {[], []}, size: 0}}
+      #Nix.Binary.Queue<[<<23, 75, 17>>]>
+      iex> p = pull(q, 10)
+      iex> elem(p, 0)
+      <<23, 75, 17>>
+      iex> elem(p, 1)
+      #Nix.Binary.Queue<[]>
   """
-  @spec pull(t, non_neg_integer) :: {binary, t}
+  @spec pull(queue, num) :: {binary, t} when queue: t, num: non_neg_integer
   def pull(%__MODULE__{data: data, size: size}, num) do
     qpull(<<>>, num, size, data)
   end
 
   @doc """
-  Returns the amount of bytes on the queue
+  Returns the number of bytes on the `queue`.
 
   ## Examples
 
       iex> q = new(<<25, 75, 17>>)
-      %Nix.Binary.Queue{data: {[<<25, 75, 17>>], []}, size: 3}
-      ...> size(q)
+      #Nix.Binary.Queue<[<<25, 75, 17>>]>
+      iex> size(q)
       3
 
       iex> q = new(<<25, 75, 17>>)
-      %Nix.Binary.Queue{data: {[<<25, 75, 17>>], []}, size: 3}
-      ...> q = push(q, <<0>>)
-      %Nix.Binary.Queue{data: {[<<0>>], [<<25, 75, 17>>]}, size: 4}
-      ...> size(q)
+      #Nix.Binary.Queue<[<<25, 75, 17>>]>
+      iex> q = push(q, <<0>>)
+      #Nix.Binary.Queue<[<<25, 75, 17>>, <<0>>]>
+      iex> size(q)
       4
   """
-  @spec size(t) :: non_neg_integer
+  @spec size(queue) :: non_neg_integer when queue: t
   def size(%__MODULE__{size: size}) do
     size
   end
 
   @doc """
-  Checks wether the queue is empty or not
+  Returns `true` if `queue` is empty, otherwise `false`.
 
   ## Examples
 
       iex> q = new()
-      %Nix.Binary.Queue{data: {[], []}, size: 0}
-      ...> empty?(q)
+      #Nix.Binary.Queue<[]>
+      iex> empty?(q)
       true
 
       iex> q = new(<<23, 75, 17>>)
-      %Nix.Binary.Queue{data: {[<<23, 75, 17>>], []}, size: 3}
-      ...> empty?(q)
+      #Nix.Binary.Queue<[<<23, 75, 17>>]>
+      iex> empty?(q)
       false
   """
-  @spec empty?(t) :: boolean
-  def empty?(%__MODULE__{size: size, data: queue}) do
+  @spec empty?(queue) :: boolean when queue: t
+  def empty?(%__MODULE__{data: queue, size: size}) do
     size == 0 && :queue.is_empty(queue)
   end
 
   @doc """
-  Converts `queue` to a list
+  Converts `queue` to a list.
 
   ## Examples
 
@@ -166,13 +210,13 @@ defmodule Nix.Binary.Queue do
       [<<1, 2, 3>>]
 
       iex> q = new(<<23, 75>>)
-      %Nix.Binary.Queue{data: {[<<23, 75>>], []}, size: 2}
-      ...> q = push(q, <<17>>)
-      %Nix.Binary.Queue{data: {[<<23, 75>>, <<17>>], []}, size: 3}
-      ...> to_list(q)
+      #Nix.Binary.Queue<[<<23, 75>>]>
+      iex> q = push(q, <<17>>)
+      #Nix.Binary.Queue<[<<23, 75>>, <<17>>]>
+      iex> to_list(q)
       [<<23, 75>>, <<17>>]
   """
-  @spec to_list(t) :: [binary]
+  @spec to_list(queue) :: [binary] when queue: t
   def to_list(%__MODULE__{data: queue}) do
     :queue.to_list(queue)
   end
@@ -272,12 +316,14 @@ defmodule Nix.Binary.Queue do
 
   ## Inspect impl
 
-  # defimpl Inspect do
-  #   import Inspect.Algebra
+  defimpl Inspect do
+    import Inspect.Algebra
 
-  #   def inspect(queue, opts) do
-  #     opts = %Inspect.Opts{opts | charlists: :as_lists}
-  #     concat([inspect(@for), ".new(", Inspect.List.inspect(@for.to_list(queue), opts), ")"])
-  #   end
-  # end
+    def inspect(queue, opts) do
+      opts = %Inspect.Opts{opts | binaries: :as_binaries, charlists: :as_lists}
+      formatted = Inspect.List.inspect(@for.to_list(queue), opts)
+      concat(["#", inspect(@for), "<", formatted, ">"])
+      # concat([inspect(@for), ".new(", Inspect.List.inspect(@for.to_list(queue), opts), ")"])
+    end
+  end
 end

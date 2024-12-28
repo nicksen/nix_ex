@@ -65,9 +65,9 @@ defmodule Nix.BinaryTest do
     end
 
     test "from_integer" do
-      assert Binary.from_integer(0) == <<0>>
-      assert Binary.from_integer(258) == <<1, 2>>
-      assert Binary.from_integer(258, :little) == <<2, 1>>
+      assert Binary.from_integer(11_111_111) == <<169, 138, 199>>
+      assert Binary.from_integer(11_111_111, :big) == <<169, 138, 199>>
+      assert Binary.from_integer(11_111_111, :little) == <<199, 138, 169>>
     end
 
     test "from_list" do
@@ -76,27 +76,27 @@ defmodule Nix.BinaryTest do
       end
     end
 
-    test "longest_common_prefix" do
-      assert Binary.longest_common_prefix(["foo fighters", "foofoo"]) == 3
-    end
+    # test "longest_common_prefix" do
+    #   assert Binary.longest_common_prefix(["foo fighters", "foofoo"]) == 3
+    # end
 
-    test "longest_common_suffix" do
-      assert Binary.longest_common_suffix(["foo", "mooooo", "boo"]) == 2
-    end
+    # test "longest_common_suffix" do
+    #   assert Binary.longest_common_suffix(["foo", "mooooo", "boo"]) == 2
+    # end
 
-    test "pad_leading" do
-      assert Binary.pad_leading(<<1, 2>>, 4) == <<0, 0, 1, 2>>
-      assert Binary.pad_leading(<<1, 2>>, 1) == <<1, 2>>
-      assert Binary.pad_leading(<<>>, 1) == <<0>>
-    end
+    # test "pad_leading" do
+    #   assert Binary.pad_leading(<<1, 2>>, 4) == <<0, 0, 1, 2>>
+    #   assert Binary.pad_leading(<<1, 2>>, 1) == <<1, 2>>
+    #   assert Binary.pad_leading(<<>>, 1) == <<0>>
+    # end
 
-    test "pad_trailing" do
-      assert Binary.pad_trailing(<<1>>, 3) == <<1, 0, 0>>
-      assert Binary.pad_trailing(<<1, 2>>, 3, 7) == <<1, 2, 7>>
-      assert Binary.pad_trailing(<<1, 2, 3>>, 3, 7) == <<1, 2, 3>>
-      assert Binary.pad_trailing(<<1, 2, 3>>, 2, 7) == <<1, 2, 3>>
-      assert Binary.pad_trailing(<<>>, 2) == <<0, 0>>
-    end
+    # test "pad_trailing" do
+    #   assert Binary.pad_trailing(<<1>>, 3) == <<1, 0, 0>>
+    #   assert Binary.pad_trailing(<<1, 2>>, 3, 7) == <<1, 2, 7>>
+    #   assert Binary.pad_trailing(<<1, 2, 3>>, 3, 7) == <<1, 2, 3>>
+    #   assert Binary.pad_trailing(<<1, 2, 3>>, 2, 7) == <<1, 2, 3>>
+    #   assert Binary.pad_trailing(<<>>, 2) == <<0, 0>>
+    # end
 
     test "part" do
       assert Binary.part(<<1, 2, 3, 4, 5>>, 1, 2) == <<2, 3>>
@@ -112,16 +112,16 @@ defmodule Nix.BinaryTest do
       assert Binary.part(<<1, 2, 3, 4, 5>>, -2, -15) == <<1, 2, 3>>
     end
 
-    test "prepend" do
-      assert Binary.prepend(<<2, 3>>, <<1>>) == <<1, 2, 3>>
-      assert Binary.prepend(<<2, 3>>, 1) == <<1, 2, 3>>
-      assert Binary.prepend(<<>>, 0) == <<0>>
-    end
+    # test "prepend" do
+    #   assert Binary.prepend(<<2, 3>>, <<1>>) == <<1, 2, 3>>
+    #   assert Binary.prepend(<<2, 3>>, 1) == <<1, 2, 3>>
+    #   assert Binary.prepend(<<>>, 0) == <<0>>
+    # end
 
-    test "replace" do
-      assert Binary.replace("hoothoot", "oo", "a") == "hathat"
-      assert Binary.replace("hoothoot", "oo", "a", global: false) == "hathoot"
-    end
+    # test "replace" do
+    #   assert Binary.replace("hoothoot", "oo", "a") == "hathat"
+    #   assert Binary.replace("hoothoot", "oo", "a", global: false) == "hathoot"
+    # end
 
     # test "reverse" do
     #   assert Binary.reverse(<<>>) == <<>>

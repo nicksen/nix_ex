@@ -17,6 +17,10 @@ defmodule Nix.Binary do
   @doc guard: true
   defguard is_byte(value) when is_integer(value) and value >= 0 and value < 256
 
+  defguardp is_nonempty_binary(value) when is_binary(value) and byte_size(value) > 0
+
+  defguardp is_nonempty_list(value) when is_list(value) and length(value) > 0
+
   ## types
 
   @typedoc """
@@ -33,7 +37,7 @@ defmodule Nix.Binary do
   ## api
 
   @doc """
-  Concatenates two binaries.
+  Concatenates two binaries by appending `right` to `left`.
 
   Handy for piping. With binary args it's the same as `<>/2`.
 
@@ -180,7 +184,8 @@ defmodule Nix.Binary do
   end
 
   @doc """
-  Returns the first byte of `bin`, or `nil` if `bin` is empty
+  Returns the first byte of binary `subject` as an integer. If the size of `subject` is zero, it
+  returns `nil`.
 
   ## Examples
 
@@ -194,6 +199,7 @@ defmodule Nix.Binary do
       nil
   """
   @spec first(subject) :: byte | nil when subject: binary
+  def first(subject)
 
   def first(bin) when is_binary(bin) and byte_size(bin) == 0 do
     nil
@@ -204,7 +210,7 @@ defmodule Nix.Binary do
   end
 
   @doc """
-  Returns the first byte of `bin`. Raises `ArgumentError` if `bin` is empty.
+  Same as `first/1` except it raises if the size of `subject` is zero.
 
   ## Examples
 
@@ -215,6 +221,8 @@ defmodule Nix.Binary do
       ** (ArgumentError) a zero-sized binary is not allowed
   """
   @spec first!(subject) :: byte when subject: binary
+  def first!(subject)
+
   def first!(bin) when is_binary(bin) do
     with nil <- first(bin) do
       raise ArgumentError, "a zero-sized binary is not allowed"
@@ -222,20 +230,26 @@ defmodule Nix.Binary do
   end
 
   @doc """
-  Returns the raw binary of `hex`
+  Decodes a hex encoded binary into a binary.
 
   ## Examples
+
+      iex> from_hex("66")
+      "f"
 
       iex> from_hex("ff01")
       <<255, 1>>
   """
-  @spec from_hex(binary) :: binary
+  @spec from_hex(hex) :: binary when hex: <<_::_*16>>
   def from_hex(hex) when is_binary(hex) do
     Base.decode16!(hex, case: :mixed)
   end
 
   @doc """
-  Returns binary representation of `num`. `endianness` is `:big` by default
+  Converts a positive integer to the smallest possible representation in a binary digit
+  representation.
+
+  Supports either big endian or little endian (default `:big`).
 
   ## Examples
 
@@ -245,14 +259,16 @@ defmodule Nix.Binary do
       iex> from_integer(1234, :little)
       <<210, 4>>
   """
-  @spec from_integer(non_neg_integer) :: binary
-  @spec from_integer(non_neg_integer, :big | :little) :: binary
-  def from_integer(num, endianness \\ :big) when is_integer(num) and num >= 0 do
+  @spec from_integer(unsigned, endianness) :: binary
+        when unsigned: non_neg_integer, endianness: :big | :little
+  def from_integer(unsigned, endianness \\ :big)
+
+  def from_integer(num, endianness) when is_integer(num) and num >= 0 do
     :binary.encode_unsigned(num, endianness)
   end
 
   @doc """
-  Convert list of bytes into binary
+  Returns a binary that is made from the integers and binaries in `byte_list`.
 
   ## Examples
 
@@ -261,14 +277,24 @@ defmodule Nix.Binary do
 
       iex> from_list([])
       <<>>
+
+      iex> bin1 = <<1, 2, 3>>
+      <<1, 2, 3>>
+      iex> bin2 = <<4, 5>>
+      <<4, 5>>
+      iex> bin3 = <<6>>
+      <<6>>
+      iex> from_list([bin1, 1, [2, 3, bin2], 4 | bin3])
+      <<1, 2, 3, 1, 2, 3, 4, 5, 4, 6>>
   """
-  @spec from_list(byte_list) :: binary when byte_list: [byte]
+  @spec from_list(byte_list) :: binary when byte_list: iolist
   def from_list(list) when is_list(list) do
     :binary.list_to_bin(list)
   end
 
   @doc """
-  Returns the last byte of `bin`, or `nil` if `bin` is empty
+  Returns the last byte of binary `subject` as an integer. If the size of `subject` is zero, it
+  returns `nil`.
 
   ## Examples
 
@@ -282,6 +308,7 @@ defmodule Nix.Binary do
       nil
   """
   @spec last(subject) :: byte | nil when subject: binary
+  def last(subject)
 
   def last(bin) when is_binary(bin) and byte_size(bin) == 0 do
     nil
@@ -292,7 +319,7 @@ defmodule Nix.Binary do
   end
 
   @doc """
-  Returns the last byte of `bin`. Raises `ArgumentError` if `bin` is empty.
+  Same as `last/1` except it raises if the size of `subject` is zero.
 
   ## Examples
 
@@ -303,6 +330,8 @@ defmodule Nix.Binary do
       ** (ArgumentError) a zero-sized binary is not allowed
   """
   @spec last!(subject) :: byte when subject: binary
+  def last!(subject)
+
   def last!(bin) when is_binary(bin) do
     with nil <- last(bin) do
       raise ArgumentError, "a zero-sized binary is not allowed"
@@ -310,33 +339,45 @@ defmodule Nix.Binary do
   end
 
   @doc """
-  Returns the length of the longest common prefix in the binaries
+  Returns the length of the longest common prefix of the binaries in list `binaries`.
 
   ## Examples
 
-      iex> longest_common_prefix(["moo", "monad", "mojo"])
+      iex> longest_common_prefix(["erlang", "ergonomy"])
       2
+
+      iex> longest_common_prefix(["erlang", "perl"])
+      0
   """
-  @spec longest_common_prefix([binary, ...]) :: non_neg_integer
+  @spec longest_common_prefix(binaries) :: non_neg_integer when binaries: [binary, ...]
+  def longest_common_prefix(binaries)
+
   def longest_common_prefix(bins) when is_list(bins) do
     :binary.longest_common_prefix(bins)
   end
 
   @doc """
-  Returns the length of the longest common suffix in the binaries
+  Returns the length of the longest common suffix of the binaries in list `binaries`.
 
   ## Examples
 
-      iex> longest_common_suffix(["moo", "boo", "mojo"])
-      1
+      iex> longest_common_suffix(["erlang", "fang"])
+      3
+
+      iex> longest_common_suffix(["erlang", "perl"])
+      0
   """
-  @spec longest_common_suffix([binary, ...]) :: non_neg_integer
+  @spec longest_common_suffix(binaries) :: non_neg_integer when binaries: [binary, ...]
+  def longest_common_suffix(binaries)
+
   def longest_common_suffix(bins) when is_list(bins) do
     :binary.longest_common_suffix(bins)
   end
 
   @doc """
-  Pad `bin` with `prefix` frmo the beginning, until it has `length`  bytes
+  Returns a new binary padded with a leading filler made of `padding`.
+
+  When `count` is less than or equal to the length of `subject`, `subject` is returned.
 
   ## Examples
 
@@ -349,12 +390,12 @@ defmodule Nix.Binary do
       iex> pad_leading(<<1, 2>>, 3, 7)
       <<7, 1, 2>>
   """
-  @spec pad_leading(binary, pos_integer) :: binary
-  @spec pad_leading(binary, pos_integer, byte) :: binary
-  def pad_leading(bin, length, prefix \\ 0)
+  @spec pad_leading(subject, count, padding) :: binary
+        when subject: binary, count: pos_integer, padding: byte
+  def pad_leading(subject, count, padding \\ 0)
 
   def pad_leading(bin, len, byte)
-      when is_binary(bin) and is_integer(len) and is_byte(byte) and len > 0 and byte_size(bin) >= len do
+      when is_binary(bin) and is_integer(len) and is_byte(byte) and len > 0 and len <= byte_size(bin) do
     bin
   end
 
@@ -363,7 +404,9 @@ defmodule Nix.Binary do
   end
 
   @doc """
-  Pad `bin` with `prefix` at the end, until it is `length` bytes
+  Returns a new binary padded with a trailing filler made of `padding`.
+
+  When `count` is less than or equal to the length of `subject`, `subject` is returned.
 
   ## Examples
 
@@ -376,12 +419,12 @@ defmodule Nix.Binary do
       iex> pad_trailing(<<1, 2>>, 3, 9)
       <<1, 2, 9>>
   """
-  @spec pad_trailing(binary, pos_integer) :: binary
-  @spec pad_trailing(binary, pos_integer, byte) :: binary
-  def pad_trailing(bin, length, suffix \\ 0)
+  @spec pad_trailing(subject, count, padding) :: binary
+        when subject: binary, count: pos_integer, padding: byte
+  def pad_trailing(subject, count, padding \\ 0)
 
   def pad_trailing(bin, len, byte)
-      when is_binary(bin) and is_integer(len) and is_byte(byte) and len > 0 and byte_size(bin) >= len do
+      when is_binary(bin) and is_integer(len) and is_byte(byte) and len > 0 and len <= byte_size(bin) do
     bin
   end
 
@@ -423,7 +466,7 @@ defmodule Nix.Binary do
   end
 
   def part(bin, idx, len) when is_binary(bin) and is_integer(idx) and is_integer(len) and len < 0 and idx + len < 0 do
-    part(bin, idx, idx * -1)
+    part(bin, idx, -idx)
   end
 
   def part(bin, idx, len) when is_binary(bin) and is_integer(idx) and is_integer(len) do
@@ -431,7 +474,7 @@ defmodule Nix.Binary do
   end
 
   @doc """
-  Prepend `prefix` to `bin`
+  Concatenates two binaries by prefixing `left` with `right`.
 
   ## Examples
 
@@ -441,41 +484,83 @@ defmodule Nix.Binary do
       iex> prepend("asd", 255)
       <<255>> <> "asd"
   """
-  @spec prepend(binary, binary | byte) :: binary
-  def prepend(bin, prefix)
-
-  def prepend(bin, prefix) when is_binary(bin) and is_byte(prefix) do
-    prepend(bin, <<prefix>>)
-  end
+  @spec prepend(left, right) :: binary when left: binary, right: binary | byte
+  def prepend(left, right)
 
   def prepend(bin, prefix) when is_binary(bin) and is_binary(prefix) do
     prefix <> bin
   end
 
-  @doc """
-  Replace occurrences of `pattern` in `bin` with `replacement`
+  def prepend(bin, prefix) when is_binary(bin) and is_byte(prefix) do
+    prepend(bin, <<prefix>>)
+  end
 
-  By default it replaces all occurrences. If you only want to replace the first match, set
-  `global: false`
+  @doc """
+  Constructs a new binary by replacing the parts in `subject` matching `pattern`.
+
+  Matching parts will be replaced with `replacement` if given as a literal `t:binary/0` or with
+  the result of applying `replacement` to a matching subpart if given as a `fun`.
+
+  If `replacement` is given as a `t:binary/0` and the matching subpart of `subject` giving raise
+  to the replacement is to be inserted in the result, option `{:insert_replaced, ins_pos}`
+  inserts the matching part into `replacement` at the specified position (or positions) before
+  inserting `replacement` into `subject`. If `replacement` is given as a `fun` instead, this
+  option is ignored.
+
+  If any position specified in `ins_pos` > size of the replacement binary, a badarg exception is
+  raised.
+
+  Options `:global` and `:scope` work as for `split/3`. The return type is always a `t:binary/0`.
 
   ## Examples
 
-      iex> replace("a-b-c", "-", "..")
-      "a..b..c"
+      iex> replace("abcde", ["b", "d"], "X")
+      "aXcXe"
 
-      iex> replace("a-b-c", "-", "..", global: false)
-      "a..b-c"
+      iex> replace("abcde", ["b", "d"], "X", global: false)
+      "aXcde"
+
+      iex> replace("abcde", "b", "[]", insert_replaced: 1)
+      "a[b]cde"
+
+      iex> replace("abcde", ["b", "d"], "[]", insert_replaced: 1)
+      "a[b]c[d]e"
+
+      iex> replace("abcde", ["b", "d"], "[]", insert_replaced: [1, 1])
+      "a[bb]c[dd]e"
+
+      iex> replace("abcde", ["b", "d"], "[-]", insert_replaced: [1, 2])
+      "a[b-b]c[d-d]e"
+
+      iex> replace("abcde", ["b", "d"], fn m -> <<?[, m::binary, ?]>> end)
+      "a[b]c[d]e"
+
+      iex> replace("abcde", ["b", "d"], fn m -> <<?[, m::binary, ?]>> end, global: false)
+      "a[b]cde"
   """
-  @spec replace(binary, nonempty_binary, binary) :: binary
-  @spec replace(binary, binary, binary, keyword) :: binary
-  def replace(bin, pattern, replacement, opts \\ [])
-      when is_binary(bin) and is_binary(pattern) and is_binary(replacement) do
-    replace_opts = (opts[:global] == false && []) || [:global]
+  @spec replace(subject, pattern, replacement, options) :: binary
+        when subject: binary,
+             pattern: nonempty_binary | [nonempty_binary, ...],
+             replacement: binary | (binary -> binary),
+             options: [option],
+             option: {:global, boolean} | {:scope, part} | {:insert_replaced, ins_pos},
+             ins_pos: one_pos | [one_pos],
+             one_pos: non_neg_integer
+  def replace(subject, pattern, replacement, options \\ [])
+
+  def replace(bin, pattern, replacement, opts)
+      when is_binary(bin) and (is_binary(pattern) or is_list(pattern)) and
+             (is_binary(replacement) or is_function(replacement, 1)) do
+    replace_opts =
+      opts
+      |> Keyword.put_new(:global, true)
+      |> get_opts([:global, :scope, :insert_replaced])
+
     :binary.replace(bin, pattern, replacement, replace_opts)
   end
 
   @doc """
-  Reverse bytes order in the binary
+  Reverse the order of bytes in binary `subject`.
 
   ## Examples
 
@@ -489,21 +574,18 @@ defmodule Nix.Binary do
       <<>>
   """
   @spec reverse(subject) :: binary when subject: binary
-  def reverse(bin) when is_binary(bin), do: bin_reverse(bin, <<>>)
+  def reverse(subject) when is_binary(subject), do: bin_reverse(subject, <<>>)
+
+  defp bin_reverse(<<>>, acc), do: acc
+  defp bin_reverse(<<x::binary-size(1), bin::binary>>, acc), do: bin_reverse(bin, x <> acc)
 
   @doc """
   Splits `subject` into a list of binaries based on `pattern`.
 
-  `pattern` can be a binary or a byte. It mimics erlangs `:binary.split/3` split behavior rather
-  than `String.split/3`, and only splits once by default. `global: true` option can be provided
-  to split on all occurences.
+  The `pattern` can be a binary, a byte or a list of binaries. If option `:global` is not
+  specified, only the first occurrence of `pattern` in `subject` gives rise to a split.
 
-  ## Options
-
-    * `:scope` - limit the scope of the search for matches.
-    * `:trim` - remove trailing empty parts (default `false`).
-    * `:trim_all` - remove all empty parts (default `false`).
-    * `:global` - split on all occurrences, or only the first (default `false`).
+  The parts of `pattern` found in `subject` are not included in the result.
 
   ## Examples
 
@@ -515,28 +597,51 @@ defmodule Nix.Binary do
 
       iex> split(<<1, 2, 3, 2, 3>>, 2, global: true)
       [<<1>>, <<3>>, <<3>>]
+
+      iex> split(<<1, 255, 4, 0, 0, 0, 2, 3>>, [<<0, 0, 0>>, <<2>>])
+      [<<1, 255, 4>>, <<2, 3>>]
+
+      iex> split(<<0, 1, 0, 0, 4, 255, 255, 9>>, [<<0, 0>>, <<255, 255>>], global: true)
+      [<<0, 1>>, <<4>>, <<9>>]
+
+  ## Options
+
+    * `:scope` - limit the scope of the search for matches.
+    * `:trim` - remove trailing empty parts (default `false`).
+    * `:trim_all` - remove all empty parts (default `false`).
+    * `:global` - split on all occurrences, or only the first (default `false`).
+
+  ## Example of the difference between a scope and taking the binary apart before splitting
+
+      iex> split("banana", "a", scope: {2, 3})
+      ["ban", "na"]
+
+      iex> bin = part("banana", 2, 3)
+      "nan"
+      iex> split(bin, "a")
+      ["n", "n"]
   """
   @spec split(subject, pattern, options) :: parts
         when subject: binary,
-             pattern: nonempty_binary | byte,
+             pattern: nonempty_binary | byte | [nonempty_binary, ...],
              options: [option],
-             option: {:global, boolean} | {:scope, part} | {:trim, boolean} | {:trim_all, boolean},
+             option: {:scope, part} | {:trim, boolean} | {:global, boolean} | {:trim_all, boolean},
              parts: [binary]
-  def split(bin, pattern, opts \\ [])
+  def split(subject, pattern, options \\ [])
+
+  def split(bin, pattern, opts) when is_binary(bin) and (is_nonempty_binary(pattern) or is_nonempty_list(pattern)) do
+    split_opts = get_opts(opts, [:global, :scope, :trim, :trim_all])
+    :binary.split(bin, pattern, split_opts)
+  end
 
   def split(bin, pattern, opts) when is_binary(bin) and is_byte(pattern) do
     split(bin, <<pattern>>, opts)
   end
 
-  def split(bin, pattern, opts) when is_binary(bin) and is_binary(pattern) and byte_size(pattern) > 0 do
-    split_opts = get_opts(opts, [:global, :scope, :trim, :trim_all])
-    :binary.split(bin, pattern, split_opts)
-  end
-
   @doc """
-  Splits a binary into two at the specified `index` as a tuple.
+  Splits the binary `subject` in two at the specified `pos` as a tuple.
 
-  When `index` is negative it is counted from the end of the binary.
+  A negative `pos` is counted from the end of the binary.
 
   ## Examples
 
@@ -549,23 +654,23 @@ defmodule Nix.Binary do
       iex> split_at(<<1, 2, 3>>, 10)
       {<<1, 2, 3>>, <<>>}
   """
-  @spec split_at(binary, integer) :: {binary, binary}
-  def split_at(bin, index)
+  @spec split_at(subject, pos) :: {binary, binary} when subject: binary, pos: integer
+  def split_at(subject, pos)
 
-  def split_at(bin, index) when is_binary(bin) and is_integer(index) and index >= byte_size(bin) do
+  def split_at(bin, idx) when is_binary(bin) and is_integer(idx) and idx >= byte_size(bin) do
     {bin, <<>>}
   end
 
-  def split_at(bin, index) when is_binary(bin) and is_integer(index) and index < byte_size(bin) * -1 do
+  def split_at(bin, idx) when is_binary(bin) and is_integer(idx) and idx < -byte_size(bin) do
     {<<>>, bin}
   end
 
-  def split_at(bin, index) when is_binary(bin) and is_integer(index) and index < 0 do
-    split_at(bin, byte_size(bin) + index)
+  def split_at(bin, idx) when is_binary(bin) and is_integer(idx) and idx < 0 do
+    split_at(bin, byte_size(bin) + idx)
   end
 
-  def split_at(bin, index) when is_binary(bin) and is_integer(index) do
-    {binary_part(bin, 0, index), binary_part(bin, index, byte_size(bin) - index)}
+  def split_at(bin, idx) when is_binary(bin) and is_integer(idx) do
+    {part(bin, 0, idx), part(bin, idx, byte_size(bin))}
   end
 
   @doc """
@@ -691,13 +796,10 @@ defmodule Nix.Binary do
     |> bin_trim_trailing(suffix)
   end
 
-  ## priv
-
-  defp bin_reverse(<<>>, acc), do: acc
-  defp bin_reverse(<<x::binary-size(1), bin::binary>>, acc), do: bin_reverse(bin, x <> acc)
-
   defp bin_trim_trailing(<<byte, bin::binary>>, byte), do: bin_trim_trailing(bin, byte)
   defp bin_trim_trailing(<<bin::binary>>, _byte), do: reverse(bin)
+
+  ## priv
 
   defp get_opts(opts, keys) do
     opts
