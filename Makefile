@@ -18,6 +18,7 @@ PROJECTS :=
 ifdef PROJ
 PROJECTS += $(PROJ)
 else
+PROJECTS += nix_markdown_formatter
 PROJECTS += nix_std
 PROJECTS += nix_dev
 PROJECTS += nix_test
