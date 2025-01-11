@@ -1,21 +1,40 @@
-# NixMarkdownFormatter
+# Nix.MarkdownFormatter
 
-**TODO: Add description**
+An Elixir formatter for markdown files and sigils.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `nix_markdown_formatter` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `nix_markdown_formatter` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:nix_markdown_formatter, "~> 0.1.0"}
+    {:nix_markdown_formatter, github: "nicksen/nix_ex", subdir: "nix_markdown_formatter", depth: 1, only: [:dev, :test], runtime: false}
   ]
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/nix_markdown_formatter>.
+Run `mix deps.get` and `mix deps.compile`, or the module will not be available to the formatter.
 
+## Usage
+
+Add `Nix.MarkdownFormatter` to the `.formatter.exs` plugin list, and add `.md` files to the list of inputs.
+
+```elixir
+[
+  plugins: [Nix.MarkdownFormatter],
+  inputs: ["{mix,.formatter}.exs", "{config,lib,test}/**/*.{ex,exs}", "*.{md,markdown,livemd}"]
+]
+```
+
+Configure with a `:markdown` section:
+
+```elixir
+[
+  plugins: [Nix.MarkdownFormatter],
+  inputs: ["{mix,.formatter}.exs", "{config,lib,test}/**/*.{ex,exs}", "*.{md,markdown,livemd}"],
+  markdown: [
+    line_length: 120
+  ]
+]
+```

@@ -36,6 +36,10 @@ defmodule NixMarkdownFormatter.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:earmark_parser, "~> 1.4"},
+      {:earmark_reversal, "~> 0.1"},
+      {:mdex, "~> 0.3"},
+
       ## testing
       {:stream_data, "~> 1.1", only: [:dev, :test]},
 
