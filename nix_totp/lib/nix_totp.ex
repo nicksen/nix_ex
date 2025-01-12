@@ -1,18 +1,12 @@
-defmodule NixTotp do
+defmodule Nix.TOTP do
   @moduledoc """
-  Documentation for `NixTotp`.
+  Functions for implementing time-based one-time passwords (TOTP) for use in multi-factor
+  authentication flows.
+
+  Provided functions:
+
+    * Generate secrets composed of random bytes
+    * Generate URIs for use in authenticator apps
+    * Generate time-based one-time passwords for a secret
   """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> NixTotp.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
 end

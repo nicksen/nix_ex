@@ -24,6 +24,7 @@ PROJECTS += nix_test
 PROJECTS += nix_config
 PROJECTS += nix_csp
 PROJECTS += nix_ticker
+PROJECTS += nix_totp
 endif
 
 
