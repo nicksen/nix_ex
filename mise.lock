@@ -1,9 +1,9 @@
 [tools.bun]
-version = "1.1.43"
+version = "1.1.45"
 backend = "core:bun"
 
 [tools.bun.checksums]
-"bun-linux-x64-baseline.zip" = "sha256:eb1636239d2c42882026adc5df0843f3a9264cf1f290ec735f945b42c5f1a17f"
+"bun-linux-x64-baseline.zip" = "sha256:f30892ee5f0e66ab72db5d1e8dc0aa8e4a666cdbd55c3ef3010ab8bdac1c7697"
 
 [tools.elixir]
 version = "1.18.1"
@@ -14,8 +14,8 @@ version = "27.2"
 backend = "core:erlang"
 
 [tools.lefthook]
-version = "1.10.3"
+version = "1.10.9"
 backend = "ubi:evilmartians/lefthook"
 
 [tools.lefthook.checksums]
-lefthook-linux-x86_64 = "sha256:98056a119d7deca1a0675ce3caf3c2a6d7b5869a946648c4906413ac3b9fd4fe"
+lefthook-linux-x86_64 = "sha256:db1d9c65656dd7c45bc148a2054dfcc027c310d5af2285f8086472339a68ef02"
