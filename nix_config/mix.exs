@@ -7,7 +7,7 @@ defmodule Nix.Config.MixProject do
     [
       app: :nix_config,
       version: @vsn,
-      elixir: "~> 1.17",
+      elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
