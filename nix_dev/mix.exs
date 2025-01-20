@@ -87,11 +87,9 @@ defmodule Nix.Dev.MixProject do
         :error_handling,
         :missing_return,
         :no_undefined_callbacks,
-        :underspecs,
         :unknown,
         :unmatched_returns
       ],
-      ignore_warnings: ".dialyzer_ignore.exs",
       list_unused_filters: true,
       plt_add_apps: [:mix]
     ]
