@@ -25,6 +25,7 @@ PROJECTS += nix_config
 PROJECTS += nix_csp
 PROJECTS += nix_ticker
 PROJECTS += nix_totp
+PROJECTS += nix_security_box
 endif
 
 

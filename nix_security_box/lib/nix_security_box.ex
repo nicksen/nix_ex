@@ -1,18 +1,5 @@
-defmodule NixSecurityBox do
+defmodule Nix.SecurityBox do
   @moduledoc """
-  Documentation for `NixSecurityBox`.
+  Documentation for `Nix.SecurityBox`.
   """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> NixSecurityBox.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
 end

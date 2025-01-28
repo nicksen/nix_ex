@@ -1,4 +1,2 @@
-# Used by "mix format"
-[
-  inputs: ["{mix,.formatter}.exs", "{config,lib,test}/**/*.{ex,exs}"]
-]
+{opts, []} = Code.eval_file("../format.config.exs", __DIR__)
+opts
