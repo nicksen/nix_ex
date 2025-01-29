@@ -31,6 +31,51 @@ defmodule Nix.Crypto do
     :sha3_512
   ]
 
+  @cipher_ivs [
+    :aes_128_cbc,
+    :aes_128_cfb128,
+    :aes_128_cfb8,
+    :aes_128_ctr,
+    :aes_128_ofb,
+    :aes_192_cbc,
+    :aes_192_cfb128,
+    :aes_192_cfb8,
+    :aes_192_ctr,
+    :aes_192_ofb,
+    :aes_256_cbc,
+    :aes_256_cfb128,
+    :aes_256_cfb8,
+    :aes_256_ctr,
+    :aes_256_ofb,
+    :aes_cbc,
+    :aes_cfb128,
+    :aes_cfb8,
+    :aes_ctr,
+    :blowfish_cbc,
+    :blowfish_cfb64,
+    :blowfish_ofb64,
+    :chacha20,
+    :des_cbc,
+    :des_cfb,
+    :des_ede3_cbc,
+    :des_ede3_cfb,
+    :rc2_cbc,
+    :sm4_cbc,
+    :sm4_cfb,
+    :sm4_ctr,
+    :sm4_ofb
+  ]
+  @cipher_no_ivs [
+    :aes_128_ecb,
+    :aes_192_ecb,
+    :aes_256_ecb,
+    :aes_ecb,
+    :blowfish_ecb,
+    :des_ecb,
+    :rc4,
+    :sm4_ecb
+  ]
+
   @encs [:hex, :hex_upper, :base32, :base32_upper, :base64, :base64_url]
 
   ## types
@@ -45,6 +90,50 @@ defmodule Nix.Crypto do
   @type hash_algorithm :: sha1 | sha2 | sha3 | sha3_xof | blake2
   @type hmac_hash_algorithm :: sha1 | sha2 | sha3
 
+  @type cipher_iv ::
+          :aes_128_cbc
+          | :aes_128_cfb128
+          | :aes_128_cfb8
+          | :aes_128_ctr
+          | :aes_128_ofb
+          | :aes_192_cbc
+          | :aes_192_cfb128
+          | :aes_192_cfb8
+          | :aes_192_ctr
+          | :aes_192_ofb
+          | :aes_256_cbc
+          | :aes_256_cfb128
+          | :aes_256_cfb8
+          | :aes_256_ctr
+          | :aes_256_ofb
+          | :aes_cbc
+          | :aes_cfb128
+          | :aes_cfb8
+          | :aes_ctr
+          | :blowfish_cbc
+          | :blowfish_cfb64
+          | :blowfish_ofb64
+          | :chacha20
+          | :des_cbc
+          | :des_cfb
+          | :des_ede3_cbc
+          | :des_ede3_cfb
+          | :rc2_cbc
+          | :sm4_cbc
+          | :sm4_cfb
+          | :sm4_ctr
+          | :sm4_ofb
+  @type cipher_no_iv ::
+          :aes_128_ecb
+          | :aes_192_ecb
+          | :aes_256_ecb
+          | :aes_ecb
+          | :blowfish_ecb
+          | :des_ecb
+          | :rc4
+          | :sm4_ecb
+  @type cipher :: cipher_no_iv | cipher_iv
+
   @type hex :: :hex | :hex_upper
   @type base32 :: :base32 | :base32_upper
   @type base64 :: :base64 | :base64_url
@@ -53,6 +142,7 @@ defmodule Nix.Crypto do
 
   @type hash_option :: {:encoding, encoding_function} | {:length, non_neg_integer}
   @type hmac_option :: {:encoding, encoding_function}
+  @type encrypt_option :: {:encoding, encoding_function}
 
   ## api
 
@@ -94,19 +184,15 @@ defmodule Nix.Crypto do
   end
 
   def hash(data, type, opts) when type in @hashs and is_list(opts) do
-    hashed =
+    fun =
       if type in hash_xof_algorithms() do
         length = Keyword.get(opts, :length, hash_xof_alg_length(type))
-        :crypto.hash_xof(type, data, length)
+        &:crypto.hash_xof(&2, &1, length)
       else
-        :crypto.hash(type, data)
+        &:crypto.hash(&2, &1)
       end
 
-    if enc = opts[:encoding] do
-      encode(hashed, enc)
-    else
-      hashed
-    end
+    do_crypto(fun, data, type, opts)
   end
 
   @doc """
@@ -151,13 +237,139 @@ defmodule Nix.Crypto do
   end
 
   def hmac(data, key, type, opts) when type in @hmac_hashs and is_list(opts) do
-    hashed = :crypto.mac(:hmac, type, key, data)
+    fun = &:crypto.mac(:hmac, &2, key, &1)
+    do_crypto(fun, data, type, opts)
+  end
 
-    if enc = opts[:encoding] do
-      encode(hashed, enc)
-    else
-      hashed
-    end
+  @doc """
+  Encrypt the `data`.
+
+  `data` is the full data to be encrypted and `cipher` is a `t:cipher_no_iv/0`.
+
+  ## Options
+
+  ## Examples
+  """
+  @spec encrypt(data, key, cipher, opts) :: result
+        when data: iodata,
+             key: iodata,
+             cipher: cipher_no_iv,
+             opts: [encrypt_option],
+             result: binary
+  @spec encrypt(data, key, cipher, encoding) :: result
+        when data: iodata,
+             key: iodata,
+             cipher: cipher_no_iv,
+             encoding: encoding_function,
+             result: binary
+  def encrypt(data, key, cipher, opts \\ [])
+
+  def encrypt(data, key, cipher, encoding) when cipher in @cipher_no_ivs and encoding in @encs do
+    encrypt(data, key, cipher, encoding: encoding)
+  end
+
+  def encrypt(data, key, cipher, opts) when cipher in @cipher_no_ivs and is_list(opts) do
+    fun = &:crypto.crypto_one_time(&2, key, &1, encrypt: true, padding: :zero)
+    do_crypto(fun, data, cipher, opts)
+  end
+
+  def encrypt(data, key, iv, cipher) when cipher in @cipher_ivs do
+    encrypt(data, key, iv, cipher, [])
+  end
+
+  @doc """
+  Encrypt the `data`.
+
+  `data` is the full data to be encrypted and `cipher` is a `t:cipher_iv/0`.
+
+  ## Options
+
+  ## Examples
+  """
+  @spec encrypt(data, key, iv, cipher, opts) :: result
+        when data: iodata,
+             key: iodata,
+             iv: iodata,
+             cipher: cipher_iv,
+             opts: [encrypt_option],
+             result: binary
+  @spec encrypt(data, key, iv, cipher, encoding) :: result
+        when data: iodata,
+             key: iodata,
+             iv: iodata,
+             cipher: cipher_iv,
+             encoding: encoding_function,
+             result: binary
+  def encrypt(data, key, iv, cipher, opts)
+
+  def encrypt(data, key, iv, cipher, encoding) when cipher in @cipher_ivs and encoding in @encs do
+    encrypt(data, key, iv, cipher, encoding: encoding)
+  end
+
+  def encrypt(data, key, iv, cipher, opts) when cipher in @cipher_ivs and is_list(opts) do
+    fun = &:crypto.crypto_one_time(&2, key, iv, &1, encrypt: true, padding: :zero)
+    do_crypto(fun, data, cipher, opts)
+  end
+
+  @doc """
+  Generate a random key with the length required by `cipher`.
+
+  ## Examples
+
+      iex> generate_cipher_key(:aes_256_ecb) |> byte_size()
+      32
+
+      iex> generate_cipher_key(:aes_128_cbc) |> byte_size()
+      16
+  """
+  @spec generate_cipher_key(cipher) :: key when cipher: cipher, key: binary
+  def generate_cipher_key(cipher) when cipher in @cipher_no_ivs or cipher in @cipher_ivs do
+    cipher
+    |> :crypto.cipher_info()
+    |> Map.fetch!(:key_length)
+    |> generate_key()
+  end
+
+  @doc """
+  Generate a random IV with the length required by `cipher`.
+
+  ## Examples
+
+      iex> generate_cipher_iv(:aes_128_cbc) |> byte_size()
+      16
+
+      iex> generate_cipher_iv(:aes_256_ecb)
+      <<>>
+  """
+  @spec generate_cipher_iv(cipher) :: iv when cipher: cipher, iv: binary
+  def generate_cipher_iv(cipher)
+
+  def generate_cipher_iv(cipher) when cipher in @cipher_no_ivs, do: <<>>
+
+  def generate_cipher_iv(cipher) when cipher in @cipher_ivs do
+    cipher
+    |> :crypto.cipher_info()
+    |> Map.fetch!(:iv_length)
+    |> generate_key()
+  end
+
+  @doc """
+  Generate a random key with `length`.
+
+  ## Examples
+
+      iex> generate_key(16) |> byte_size()
+      16
+
+      iex> generate_key(32) |> byte_size()
+      32
+
+      iex> generate_key(128) |> byte_size()
+      128
+  """
+  @spec generate_key(length) :: key when length: non_neg_integer, key: binary
+  def generate_key(length) when is_integer(length) and length > 0 do
+    :crypto.strong_rand_bytes(length)
   end
 
   @doc false
@@ -173,10 +385,27 @@ defmodule Nix.Crypto do
   def hmac_hash_algorithms, do: @hmac_hashs
 
   @doc false
+  @spec ciphers_no_iv() :: [cipher_no_iv]
+  def ciphers_no_iv, do: @cipher_no_ivs
+
+  @doc false
+  @spec ciphers_iv() :: [cipher_iv]
+  def ciphers_iv, do: @cipher_ivs
+
+  @doc false
   @spec encoding_functions() :: [encoding_function]
   def encoding_functions, do: @encs
 
   ## priv
+
+  defp do_crypto(fun, data, type, opts) do
+    hashed = fun.(data, type)
+
+    case Keyword.fetch(opts, :encoding) do
+      {:ok, enc} -> encode(hashed, enc)
+      :error -> hashed
+    end
+  end
 
   defp encode(data, :hex), do: Base.encode16(data, case: :lower)
   defp encode(data, :hex_upper), do: Base.encode16(data, case: :upper)
