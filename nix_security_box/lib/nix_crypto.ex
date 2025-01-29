@@ -90,6 +90,20 @@ defmodule Nix.Crypto do
   @type hash_algorithm :: sha1 | sha2 | sha3 | sha3_xof | blake2
   @type hmac_hash_algorithm :: sha1 | sha2 | sha3
 
+  @type cipher_mode ::
+          :undefined
+          | :cbc_mode
+          | :ccm_mode
+          | :cfb_mode
+          | :ctr_mode
+          | :ecb_mode
+          | :gcm_mode
+          | :ige_mode
+          | :ocb_mode
+          | :ofb_mode
+          | :wrap_mode
+          | :xts_mode
+
   @type cipher_iv ::
           :aes_128_cbc
           | :aes_128_cfb128
@@ -385,6 +399,10 @@ defmodule Nix.Crypto do
   def hmac_hash_algorithms, do: @hmac_hashs
 
   @doc false
+  @spec ciphers() :: [cipher]
+  def ciphers, do: ciphers_no_iv() ++ ciphers_iv()
+
+  @doc false
   @spec ciphers_no_iv() :: [cipher_no_iv]
   def ciphers_no_iv, do: @cipher_no_ivs
 
@@ -395,6 +413,28 @@ defmodule Nix.Crypto do
   @doc false
   @spec encoding_functions() :: [encoding_function]
   def encoding_functions, do: @encs
+
+  @doc false
+  @spec cipher_info(type) :: result
+        when type: cipher,
+             result: %{
+               key_length: integer,
+               iv_length: integer,
+               block_size: integer,
+               mode: cipher_mode,
+               type: :undefined | integer,
+               prop_aead: boolean
+             }
+  def cipher_info(type) when type in @cipher_no_ivs or type in @cipher_ivs do
+    :crypto.cipher_info(type)
+  end
+
+  @doc false
+  @spec hash_info(type) :: result
+        when type: hash_algorithm, result: %{size: integer, block_size: integer, type: integer}
+  def hash_info(type) when type in @hashs do
+    :crypto.hash_info(type)
+  end
 
   ## priv
 
