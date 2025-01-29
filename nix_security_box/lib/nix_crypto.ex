@@ -326,6 +326,32 @@ defmodule Nix.Crypto do
   end
 
   @doc """
+  Decrypt the `data`.
+  """
+  @spec decrypt(data, cipher, key, opts) :: result
+        when data: iodata,
+             cipher: cipher_no_iv,
+             key: iodata,
+             opts: [encrypt_option],
+             result: binary
+  @spec decrypt(data, cipher, key, encoding) :: result
+        when data: iodata,
+             cipher: cipher_no_iv,
+             key: iodata,
+             encoding: encoding_function,
+             result: binary
+  def decrypt(data, cipher, key, opts \\ [])
+
+  def decrypt(data, cipher, key, encoding) when cipher in @cipher_no_ivs and encoding in @encs do
+    decrypt(data, cipher, key, encoding: encoding)
+  end
+
+  def decrypt(data, cipher, key, opts) when cipher in @cipher_no_ivs and is_list(opts) do
+    fun = &:crypto.crypto_one_time(&2, key, &1, encrypt: false, padding: :zero)
+    do_crypto(fun, data, cipher, opts)
+  end
+
+  @doc """
   Generate a random key with the length required by `cipher`.
 
   ## Examples
