@@ -16,16 +16,16 @@ defmodule Nix.Crypto.HmacEncodingTest do
     test "is consistent", %{type: type, encoding: encoding} do
       msg = "example"
       key = "secret"
-      enc = hmac(msg, key, type, encoding)
+      enc = hmac(msg, type, key, encoding)
 
       assert enc != msg
-      assert enc == hmac(msg, key, type, encoding)
+      assert enc == hmac(msg, type, key, encoding)
     end
 
     property "generates binary", %{type: type, encoding: encoding} do
       check all data <- iodata(),
                 key <- iodata() do
-        enc = hmac(data, key, type, encoding)
+        enc = hmac(data, type, key, encoding)
 
         assert String.valid?(enc)
         assert String.length(enc) > 0

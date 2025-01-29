@@ -223,34 +223,34 @@ defmodule Nix.Crypto do
 
   ## Examples
 
-      hmac("1", "secret", :sha)
+      hmac("1", :sha, "secret")
       #=> <<81, 161, 228, 211, 205, ...>>
 
-      iex> hmac("1", "secret", :sha256, :hex)
+      iex> hmac("1", :sha256, "secret", :hex)
       "bd28ee142ca5b46259f6e27fc3a4216f447bd5843c406e63219cff30e73b135b"
 
-      iex> hmac("1", "secret", :sha3_384, :base64_url)
+      iex> hmac("1", :sha3_384, "secret", :base64_url)
       "nDgul0AU1yYS-LXD7_sOPf7A1MnEZyZwsPjiKb3YjQhALa5IgP20tVMlZTeDfyvE"
   """
-  @spec hmac(data, key, type, opts) :: mac
+  @spec hmac(data, type, key, opts) :: mac
         when data: iodata,
-             key: iodata,
              type: hmac_hash_algorithm,
+             key: iodata,
              opts: [hmac_option],
              mac: binary
-  @spec hmac(data, key, type, encoding) :: mac
+  @spec hmac(data, type, key, encoding) :: mac
         when data: iodata,
-             key: iodata,
              type: hmac_hash_algorithm,
+             key: iodata,
              encoding: encoding_function,
              mac: binary
-  def hmac(data, key, type, opts \\ [])
+  def hmac(data, type, key, opts \\ [])
 
-  def hmac(data, key, type, encoding) when type in @hmac_hashs and encoding in @encs do
-    hmac(data, key, type, encoding: encoding)
+  def hmac(data, type, key, encoding) when type in @hmac_hashs and encoding in @encs do
+    hmac(data, type, key, encoding: encoding)
   end
 
-  def hmac(data, key, type, opts) when type in @hmac_hashs and is_list(opts) do
+  def hmac(data, type, key, opts) when type in @hmac_hashs and is_list(opts) do
     fun = &:crypto.mac(:hmac, &2, key, &1)
     do_crypto(fun, data, type, opts)
   end
@@ -264,31 +264,31 @@ defmodule Nix.Crypto do
 
   ## Examples
   """
-  @spec encrypt(data, key, cipher, opts) :: result
+  @spec encrypt(data, cipher, key, opts) :: result
         when data: iodata,
-             key: iodata,
              cipher: cipher_no_iv,
+             key: iodata,
              opts: [encrypt_option],
              result: binary
-  @spec encrypt(data, key, cipher, encoding) :: result
+  @spec encrypt(data, cipher, key, encoding) :: result
         when data: iodata,
-             key: iodata,
              cipher: cipher_no_iv,
+             key: iodata,
              encoding: encoding_function,
              result: binary
-  def encrypt(data, key, cipher, opts \\ [])
+  def encrypt(data, cipher, key, opts \\ [])
 
-  def encrypt(data, key, cipher, encoding) when cipher in @cipher_no_ivs and encoding in @encs do
-    encrypt(data, key, cipher, encoding: encoding)
+  def encrypt(data, cipher, key, encoding) when cipher in @cipher_no_ivs and encoding in @encs do
+    encrypt(data, cipher, key, encoding: encoding)
   end
 
-  def encrypt(data, key, cipher, opts) when cipher in @cipher_no_ivs and is_list(opts) do
+  def encrypt(data, cipher, key, opts) when cipher in @cipher_no_ivs and is_list(opts) do
     fun = &:crypto.crypto_one_time(&2, key, &1, encrypt: true, padding: :zero)
     do_crypto(fun, data, cipher, opts)
   end
 
-  def encrypt(data, key, iv, cipher) when cipher in @cipher_ivs do
-    encrypt(data, key, iv, cipher, [])
+  def encrypt(data, cipher, key, iv) when cipher in @cipher_ivs do
+    encrypt(data, cipher, key, iv, [])
   end
 
   @doc """
@@ -300,27 +300,27 @@ defmodule Nix.Crypto do
 
   ## Examples
   """
-  @spec encrypt(data, key, iv, cipher, opts) :: result
+  @spec encrypt(data, cipher, key, iv, opts) :: result
         when data: iodata,
+             cipher: cipher_iv,
              key: iodata,
              iv: iodata,
-             cipher: cipher_iv,
              opts: [encrypt_option],
              result: binary
-  @spec encrypt(data, key, iv, cipher, encoding) :: result
+  @spec encrypt(data, cipher, key, iv, encoding) :: result
         when data: iodata,
+             cipher: cipher_iv,
              key: iodata,
              iv: iodata,
-             cipher: cipher_iv,
              encoding: encoding_function,
              result: binary
-  def encrypt(data, key, iv, cipher, opts)
+  def encrypt(data, cipher, key, iv, opts)
 
-  def encrypt(data, key, iv, cipher, encoding) when cipher in @cipher_ivs and encoding in @encs do
-    encrypt(data, key, iv, cipher, encoding: encoding)
+  def encrypt(data, cipher, key, iv, encoding) when cipher in @cipher_ivs and encoding in @encs do
+    encrypt(data, cipher, key, iv, encoding: encoding)
   end
 
-  def encrypt(data, key, iv, cipher, opts) when cipher in @cipher_ivs and is_list(opts) do
+  def encrypt(data, cipher, key, iv, opts) when cipher in @cipher_ivs and is_list(opts) do
     fun = &:crypto.crypto_one_time(&2, key, iv, &1, encrypt: true, padding: :zero)
     do_crypto(fun, data, cipher, opts)
   end

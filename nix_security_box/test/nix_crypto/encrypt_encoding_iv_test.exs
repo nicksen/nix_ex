@@ -17,10 +17,10 @@ defmodule Nix.Crypto.EncryptEncodingIVTest do
       msg = "example"
       key = generate_cipher_key(type)
       iv = generate_cipher_iv(type)
-      enc = encrypt(msg, key, iv, type, encoding)
+      enc = encrypt(msg, type, key, iv, encoding)
 
       assert enc != msg
-      assert enc == encrypt(msg, key, iv, type, encoding)
+      assert enc == encrypt(msg, type, key, iv, encoding)
     end
 
     test "output changes with secret", %{type: type, encoding: encoding} do
@@ -29,7 +29,7 @@ defmodule Nix.Crypto.EncryptEncodingIVTest do
       key2 = generate_cipher_key(type)
       iv = generate_cipher_iv(type)
 
-      assert encrypt(msg, key1, iv, type, encoding) != encrypt(msg, key2, iv, type, encoding)
+      assert encrypt(msg, type, key1, iv, encoding) != encrypt(msg, type, key2, iv, encoding)
     end
 
     test "output changes with iv", %{type: type, encoding: encoding} do
@@ -38,7 +38,7 @@ defmodule Nix.Crypto.EncryptEncodingIVTest do
       iv1 = generate_cipher_iv(type)
       iv2 = generate_cipher_iv(type)
 
-      assert encrypt(msg, key, iv1, type, encoding) != encrypt(msg, key, iv2, type, encoding)
+      assert encrypt(msg, type, key, iv1, encoding) != encrypt(msg, type, key, iv2, encoding)
     end
 
     property "generates binary", %{type: type, encoding: encoding} do
@@ -46,7 +46,7 @@ defmodule Nix.Crypto.EncryptEncodingIVTest do
                 IO.iodata_length(data) > 0 do
         key = generate_cipher_key(type)
         iv = generate_cipher_iv(type)
-        enc = encrypt(data, key, iv, type, encoding)
+        enc = encrypt(data, type, key, iv, encoding)
 
         assert String.valid?(enc)
         assert String.length(enc) > 0

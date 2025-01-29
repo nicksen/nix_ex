@@ -11,10 +11,10 @@ defmodule Nix.Crypto.EncryptNoIVTest do
     test "is consistent", %{type: type} do
       msg = "example"
       key = generate_cipher_key(type)
-      enc = encrypt(msg, key, type)
+      enc = encrypt(msg, type, key)
 
       assert enc != msg
-      assert enc == encrypt(msg, key, type)
+      assert enc == encrypt(msg, type, key)
     end
 
     test "output changes with secret", %{type: type} do
@@ -22,14 +22,14 @@ defmodule Nix.Crypto.EncryptNoIVTest do
       key1 = generate_cipher_key(type)
       key2 = generate_cipher_key(type)
 
-      assert encrypt(msg, key1, type) != encrypt(msg, key2, type)
+      assert encrypt(msg, type, key1) != encrypt(msg, type, key2)
     end
 
     property "generates binary", %{type: type} do
       check all data <- iodata(),
                 IO.iodata_length(data) > 0 do
         key = generate_cipher_key(type)
-        enc = encrypt(data, key, type)
+        enc = encrypt(data, type, key)
 
         assert is_binary(enc)
         assert bit_size(enc) > 0
