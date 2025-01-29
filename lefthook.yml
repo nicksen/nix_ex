@@ -39,3 +39,9 @@ pre-commit:
       glob: "*.{ex,exs,heex,md}"
       run: mix lint.fmt
       stage_fixed: true
+
+    nix_totp_mix_lint:
+      root: "nix_totp/"
+      glob: "*.{ex,exs,heex,md}"
+      run: mix lint.fmt
+      stage_fixed: true
