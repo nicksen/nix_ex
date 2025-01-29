@@ -19,6 +19,17 @@ defmodule Nix.Crypto do
     :blake2s
   ]
   @xof_hashs [:shake128, :shake256]
+  @hmac_hashs [
+    :sha,
+    :sha224,
+    :sha256,
+    :sha384,
+    :sha512,
+    :sha3_224,
+    :sha3_256,
+    :sha3_384,
+    :sha3_512
+  ]
 
   @encs [:hex, :hex_upper, :base32, :base32_upper, :base64, :base64_url]
 
@@ -32,6 +43,7 @@ defmodule Nix.Crypto do
 
   @type hash_xof_algorithm :: sha3_xof
   @type hash_algorithm :: sha1 | sha2 | sha3 | sha3_xof | blake2
+  @type hmac_hash_algorithm :: sha1 | sha2 | sha3
 
   @type hex :: :hex | :hex_upper
   @type base32 :: :base32 | :base32_upper
@@ -40,6 +52,7 @@ defmodule Nix.Crypto do
   @type encoding_function :: hex | base32 | base64
 
   @type hash_option :: {:encoding, encoding_function} | {:length, non_neg_integer}
+  @type hmac_option :: {:encoding, encoding_function}
 
   ## api
 
@@ -96,6 +109,57 @@ defmodule Nix.Crypto do
     end
   end
 
+  @doc """
+  Compute a HMAC (Hash-based Message Authentication Code).
+
+  `data` is the full message and `type` is a `t:hmac_hash_algorithm/0`.
+
+  `key` is the authentication key with a length according to the `type`. The key length can be
+  found with the `:crypto.hash_info/1` function.
+
+  ## Options
+
+    * `:encoding` (`t:encoding_function/0`) - Pass output through encoding function.
+
+  ## Examples
+
+      hmac("1", "secret", :sha)
+      #=> <<81, 161, 228, 211, 205, ...>>
+
+      iex> hmac("1", "secret", :sha256, :hex)
+      "bd28ee142ca5b46259f6e27fc3a4216f447bd5843c406e63219cff30e73b135b"
+
+      iex> hmac("1", "secret", :sha3_384, :base64_url)
+      "nDgul0AU1yYS-LXD7_sOPf7A1MnEZyZwsPjiKb3YjQhALa5IgP20tVMlZTeDfyvE"
+  """
+  @spec hmac(data, key, type, opts) :: mac
+        when data: iodata,
+             key: iodata,
+             type: hmac_hash_algorithm,
+             opts: [hmac_option],
+             mac: binary
+  @spec hmac(data, key, type, encoding) :: mac
+        when data: iodata,
+             key: iodata,
+             type: hmac_hash_algorithm,
+             encoding: encoding_function,
+             mac: binary
+  def hmac(data, key, type, opts \\ [])
+
+  def hmac(data, key, type, encoding) when type in @hmac_hashs and encoding in @encs do
+    hmac(data, key, type, encoding: encoding)
+  end
+
+  def hmac(data, key, type, opts) when type in @hmac_hashs and is_list(opts) do
+    hashed = :crypto.mac(:hmac, type, key, data)
+
+    if enc = opts[:encoding] do
+      encode(hashed, enc)
+    else
+      hashed
+    end
+  end
+
   @doc false
   @spec hash_algorithms() :: [hash_algorithm]
   def hash_algorithms, do: @hashs
@@ -103,6 +167,10 @@ defmodule Nix.Crypto do
   @doc false
   @spec hash_xof_algorithms() :: [hash_xof_algorithm]
   def hash_xof_algorithms, do: @xof_hashs
+
+  @doc false
+  @spec hmac_hash_algorithms() :: [hmac_hash_algorithm]
+  def hmac_hash_algorithms, do: @hmac_hashs
 
   @doc false
   @spec encoding_functions() :: [encoding_function]

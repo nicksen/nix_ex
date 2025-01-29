@@ -6,10 +6,12 @@ defmodule Nix.SecurityBoxTest do
 
   doctest Nix.SecurityBox, import: true
 
-  describe "encrypt/1" do
+  describe "one-way encrypt" do
     test "handles nil" do
-      assert encrypt(nil) == "da39a3ee5e6b4b0d3255bfef95601890afd80709"
-      assert encrypt("") == "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+      expected = "46b9dd2b0ba88d13233b3feb743eeb243fcd52ea"
+
+      assert encrypt(nil) == expected
+      assert encrypt("") == expected
     end
 
     property "is consistent" do
@@ -17,6 +19,20 @@ defmodule Nix.SecurityBoxTest do
         assert encrypt(data) != data
         assert encrypt(data) == encrypt(data)
       end
+    end
+
+    test "check is decrypted" do
+      assert decrypted?("secret", "XXX") == false
+      assert decrypted?("secret", encrypt("wrong")) == false
+      assert decrypted?("secret", encrypt("secret")) == true
+    end
+
+    test "decrypted check handles nil" do
+      assert decrypted?(nil, "XXX") == false
+      assert decrypted?("secret", nil) == false
+      assert decrypted?(nil, nil) == false
+      assert decrypted?(nil, encrypt(nil)) == true
+      assert decrypted?("", encrypt("")) == true
     end
   end
 end
