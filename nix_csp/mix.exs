@@ -90,7 +90,9 @@ defmodule Nix.CSP.MixProject do
         :unknown,
         :unmatched_returns
       ],
-      list_unused_filters: true
+      list_unused_filters: true,
+      plt_add_deps: :apps_direct,
+      plt_add_apps: []
     ]
   end
 end

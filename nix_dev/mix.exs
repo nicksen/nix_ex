@@ -91,6 +91,7 @@ defmodule Nix.Dev.MixProject do
         :unmatched_returns
       ],
       list_unused_filters: true,
+      plt_add_deps: :apps_direct,
       plt_add_apps: [:mix]
     ]
   end
