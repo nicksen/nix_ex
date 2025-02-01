@@ -1,21 +1,13 @@
 # Nix.Crypto
 
-**TODO: Add description**
-
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `nix_crypto` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `nix_crypto` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:nix_crypto, "~> 0.1.0"}
+    {:nix_crypto, github: "nicksen/nix_ex", subdir: "nix_crypto", depth: 1}
   ]
 end
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/nix_crypto>.
-

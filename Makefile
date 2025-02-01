@@ -22,6 +22,7 @@ PROJECTS += nix_std
 PROJECTS += nix_dev
 PROJECTS += nix_test
 PROJECTS += nix_config
+PROJECTS += nix_crypto
 PROJECTS += nix_csp
 PROJECTS += nix_ticker
 PROJECTS += nix_totp

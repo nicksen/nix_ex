@@ -10,6 +10,12 @@ pre-commit:
       run: mix lint.fmt
       stage_fixed: true
 
+    nix_crypto_mix_lint:
+      root: "nix_crypto/"
+      glob: "*.{ex,exs,heex,md}"
+      run: mix lint.fmt
+      stage_fixed: true
+
     nix_csp_mix_lint:
       root: "nix_csp/"
       glob: "*.{ex,exs,heex,md}"
