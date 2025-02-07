@@ -1,21 +1,21 @@
 [tools.bun]
-version = "1.2.1"
+version = "1.2.4"
 backend = "core:bun"
 
 [tools.bun.checksums]
-"bun-linux-x64-baseline.zip" = "sha256:e4f2a8796ee2f4357e02f38747a3d80aa48a3deca80aa41b21a3b8841855bf1e"
+"bun-linux-x64-baseline.zip" = "sha256:e03eb2559a61af0cfb7acf3e59272d55613ef14078f156f7b22512456caa0f8b"
 
 [tools.elixir]
 version = "1.18.2"
-backend = "vfox:version-fox/vfox-elixir"
+backend = "vfox:elixir"
 
 [tools.erlang]
-version = "27.2.1"
-backend = "core:erlang"
+version = "27.2.4"
+backend = "vfox:erlang"
 
 [tools.lefthook]
-version = "1.10.10"
-backend = "ubi:evilmartians/lefthook"
+version = "1.11.3"
+backend = "aqua:evilmartians/lefthook"
 
 [tools.lefthook.checksums]
-lefthook-linux-x86_64 = "sha256:5c287616b15f20683f83b3b30cd31792c8d43d7806188d94b5c608f64286cda4"
+"lefthook_1.11.3_Linux_x86_64.gz" = "sha256:0bb5fefa5183190f681acb1c7f5ad2243e002dda0ef1f3d79c5ac06f4a0a8a91"

@@ -85,12 +85,12 @@ defmodule Nix.CSP do
 
   ### Usage
 
-  If you got inline `<style>` or `<script>` tags, you must set the `nonce` attribute:
+  If you have inline `<style>` or `<script>` tags, you must set the `nonce` attribute:
 
   ```heex
-  <style nonce={get_csp_nonce()}>
+  <script nonce={get_csp_nonce()}>
     // ...
-  </style>
+  </script>
   ```
   """
 
