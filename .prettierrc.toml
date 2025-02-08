@@ -1,4 +1,4 @@
-"$schema" = "https://json.schemastore.org/prettierrc"
+#:schema https://json.schemastore.org/prettierrc
 
 arrowParens = "always"
 bracketSameLine = false
@@ -38,26 +38,26 @@ arrayAutoExpand = true
 compactArrays = true
 compactEntries = false
 compactInlineTables = false
-indentEntries = true
+indentEntries = false
 indentTables = false
 reorderKeys = true
 
 
 [[overrides]]
-	files = ["*.js", "*.ts", "*.css", "*.sh", "*.bash", "*.toml"]
-	options = { printWidth = 98, useTabs = true }
+files = ["*.js", "*.ts", "*.css", "*.sh", "*.bash", "*.toml"]
+options = { printWidth = 98, useTabs = true }
 
 
 [[overrides]]
-	files = ["*.js", "*.ts"]
-	options = { parser = "typescript" }
+files = ["*.js", "*.ts"]
+options = { parser = "typescript" }
 
 
 [[overrides]]
-	files = ["*.json"]
-	options = { parser = "jsonc", trailingComma = "none" }
+files = ["*.json"]
+options = { parser = "jsonc", trailingComma = "none" }
 
 
 [[overrides]]
-	files = ["package.json"]
-	options = { parser = "json-stringify" }
+files = ["package.json"]
+options = { parser = "json-stringify" }
