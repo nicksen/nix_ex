@@ -1,16 +1,16 @@
 [tools.bun]
-version = "1.2.4"
+version = "1.2.5"
 backend = "core:bun"
 
 [tools.bun.checksums]
-"bun-linux-x64-baseline.zip" = "sha256:e03eb2559a61af0cfb7acf3e59272d55613ef14078f156f7b22512456caa0f8b"
+"bun-linux-x64-baseline.zip" = "sha256:0e61e7932b0b63b7416028da4be8479562e16b880b3a8e07b6ed457d6d0322e3"
 
 [tools.elixir]
-version = "1.18.2"
+version = "1.18.3"
 backend = "vfox:elixir"
 
 [tools.erlang]
-version = "27.2.4"
+version = "27.3"
 backend = "vfox:erlang"
 
 [tools.lefthook]
