@@ -21,10 +21,8 @@ trailingComma = "all"
 
 
 binaryNextLine = true
-experimentalWasm = true
 functionNextLine = false
 keepComments = true
-keepPadding = false
 minify = false
 spaceRedirects = false
 switchCaseIndent = false
