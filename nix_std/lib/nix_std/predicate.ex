@@ -5,11 +5,11 @@ defmodule Nix.Std.Predicate do
 
   ## types
 
-  @type t(value) :: (value -> boolean)
+  @type t(value) :: (value -> as_boolean(term))
   @type t :: t(any)
 
   @doc """
-  Create a predicate that tests both `x` and `y`.
+  Create a predicate that tests `left` and `right`.
 
   ## Example
 
@@ -21,8 +21,46 @@ defmodule Nix.Std.Predicate do
       ...> pred.(1)
       false
   """
-  @spec and_then(t(value), t(value)) :: t(value) when value: term
-  def and_then(x, y) when is_function(x, 1) and is_function(y, 1) do
-    fn value -> x.(value) and y.(value) end
+  @spec and_then(left, right) :: combined
+        when left: t(value), right: t(value), combined: t(value), value: term
+  def and_then(left, right) when is_function(left, 1) and is_function(right, 1) do
+    fn value -> left.(value) && right.(value) end
+  end
+
+  @doc """
+  Create a predicate that tests `left` or `right`.
+
+  ## Example
+
+      iex> pred = or_is(&(&1 > 0), &(&1 < 0))
+      ...> pred.(-1)
+      true
+
+      iex> pred = or_is(&(&1 > 0), &(&1 < 0))
+      ...> pred.(0)
+      false
+  """
+  @spec or_is(left, right) :: combined
+        when left: t(value), right: t(value), combined: t(value), value: term
+  def or_is(left, right) when is_function(left, 1) and is_function(right, 1) do
+    fn value -> left.(value) || right.(value) end
+  end
+
+  @doc """
+  Create a predicate that inverts the result of `pred`.
+
+  ## Example
+
+      iex> pred = invert(&(&1 > 0))
+      ...> pred.(1)
+      false
+
+      iex> pred = invert(&(&1 > 0))
+      ...> pred.(-1)
+      true
+  """
+  @spec invert(pred) :: inverted when pred: t(value), inverted: t(value), value: term
+  def invert(pred) when is_function(pred, 1) do
+    fn value -> !pred.(value) end
   end
 end

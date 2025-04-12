@@ -7,20 +7,40 @@ defmodule Nix.Std.PredicateTest do
   doctest Nix.Std.Predicate, import: true
 
   describe "and_then" do
-    test "only runs first predicate" do
-      falsy = k(false)
+    test "short circuits" do
       fails = fn _ignored -> raise "error!" end
-      pred = and_then(falsy, fails)
+      pred = and_then(&id/1, fails)
 
-      pred.(nil)
+      assert pred.(false) == false
     end
 
-    test "expects strict predicate functions" do
-      pred = and_then(k(nil), &id/1)
+    test "supports thruthy and falsy predicates" do
+      pred = and_then(k(1), k(""))
+      assert pred.(true) == ""
+    end
+  end
 
-      assert_raise BadBooleanError, fn ->
-        pred.(true)
-      end
+  describe "or_is" do
+    test "short circuits" do
+      fails = fn _ignored -> raise "error!" end
+      pred = or_is(&id/1, fails)
+
+      assert pred.(true) == true
+    end
+
+    test "supports thruthy and falsy predicates" do
+      pred = or_is(k(0), k(1))
+      assert pred.(true) == 0
+    end
+  end
+
+  describe "invert" do
+    test "supports truthy and falsy predicates" do
+      pred = invert(k(nil))
+      assert pred.(1) == true
+
+      pred = invert(k(1))
+      assert pred.(1) == false
     end
   end
 end
