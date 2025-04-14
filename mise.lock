@@ -1,21 +1,24 @@
 [tools.bun]
-version = "1.2.9"
+version = "1.2.21"
 backend = "core:bun"
 
-[tools.bun.checksums]
-"bun-linux-x64-baseline.zip" = "sha256:f8f969281625dcde1abed7b405f0525909641674dcd0ea4060421747de30f6db"
+[tools.bun.platforms.linux-x64]
+checksum = "blake3:cf519ce71d7c518e211001f428ae34c2ec2a4f0484787bdf28baf7f372c94860"
+size = 39128668
 
 [tools.elixir]
-version = "1.18.3"
+version = "1.18.4"
 backend = "vfox:elixir"
 
 [tools.erlang]
-version = "27.3.1"
-backend = "vfox:erlang"
+version = "28.0.2"
+backend = "core:erlang"
 
 [tools.lefthook]
-version = "1.11.9"
+version = "1.12.3"
 backend = "aqua:evilmartians/lefthook"
 
-[tools.lefthook.checksums]
-"lefthook_1.11.9_Linux_x86_64.gz" = "sha256:0f0e14d544ffe51060ab7eaaa4f0879ac93f3b62be847635dad4dcac65868f90"
+[tools.lefthook.platforms.linux-x64]
+checksum = "sha256:6aaf68fa81cc80d8ceea9e67b02208e0c63582caca3467389ebffe34c5599d9b"
+size = 5833172
+url = "https://github.com/evilmartians/lefthook/releases/download/v1.12.3/lefthook_1.12.3_Linux_x86_64.gz"

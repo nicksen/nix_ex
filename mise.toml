@@ -1,5 +1,5 @@
 [tools]
 bun = "1.2"
 elixir = "1.18"
-erlang = "prefix:27.3"
-lefthook = "1.11"
+erlang = "prefix:28.0"
+lefthook = "1.12"

@@ -12,7 +12,7 @@ defmodule Nix.Std.FPTest do
           cond do
             n == 0 -> 1
             rem(n, 2) == 1 -> x * me.(me).({x * x, div(n, 2)})
-            :else -> me.(me).({x * x, div(n, 2)})
+            true -> me.(me).({x * x, div(n, 2)})
           end
         end
       end

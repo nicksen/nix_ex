@@ -12,7 +12,7 @@ defmodule Nix.TOTP do
 
   @totp_size 6
   @default_totp_period 30
-  @otpauth_base_uri URI.new!("otpauth://totp")
+  @otpauth_base_uri "otpauth://totp"
 
   ## types
 
@@ -53,8 +53,9 @@ defmodule Nix.TOTP do
       |> Keyword.put(:secret, key)
       |> URI.encode_query(:rfc3986)
 
-    @otpauth_base_uri
-    |> URI.append_path("/" <> URI.encode(label))
+    uri = URI.parse(@otpauth_base_uri <> "/" <> URI.encode(label))
+
+    uri
     |> URI.append_query(query)
     |> URI.to_string()
   end

@@ -15,7 +15,6 @@ defmodule Mix.Tasks.Poncho.Do do
   alias Mix.Dep.Converger
   alias Mix.Dep.Loader
   alias Mix.Project
-  alias Mix.Task
 
   @impl Mix.Task
   def run(args) do
@@ -32,7 +31,7 @@ defmodule Mix.Tasks.Poncho.Do do
       path = dep.opts[:path]
 
       Project.in_project(dep.app, path, fn _module ->
-        Task.run(task, args)
+        Mix.Task.run(task, args)
       end)
     end
   end

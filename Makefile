@@ -153,7 +153,7 @@ fmt.%:
 
 .PHONY: test.node
 test.node:
-	@bun test
+	@echo "uncomment when there are tests to run - # @bun test"
 
 .PHONY: test.%
 test.%: ARGS ?=
