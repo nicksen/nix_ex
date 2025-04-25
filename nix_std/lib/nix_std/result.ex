@@ -5,9 +5,9 @@ defmodule Nix.Std.Result do
 
   ## types
 
-  @type t_ok(value) :: {:ok, value}
-  @type t_error(reason) :: {:error, reason}
-  @type result(value, reason) :: t_ok(value) | t_error(reason)
+  @type successful(value) :: {:ok, value}
+  @type failed(reason) :: {:error, reason}
+  @type result(value, reason) :: successful(value) | failed(reason)
 
   @type t :: result(term, term)
 
@@ -21,7 +21,7 @@ defmodule Nix.Std.Result do
       iex> ok("data")
       {:ok, "data"}
   """
-  @spec ok(value) :: t_ok(value) when value: term
+  @spec ok(value) :: result(value, term) when value: term
   def ok(value), do: {:ok, value}
 
   @doc """
@@ -32,7 +32,7 @@ defmodule Nix.Std.Result do
       iex> error(:no_match)
       {:error, :no_match}
   """
-  @spec error(reason) :: t_error(reason) when reason: term
+  @spec error(reason) :: result(term, reason) when reason: term
   def error(reason), do: {:error, reason}
 
   @doc """
